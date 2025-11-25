@@ -19,15 +19,33 @@
               <small>Scanner akan menggunakan kamera belakang</small>
             </div>
 
-            <!-- Scanner Overlay dengan Border -->
+            <!-- Scanner Overlay dengan Bentuk Bard -->
             <div class="scanner-overlay" *ngIf="isScanning">
-              <div class="scanner-frame">
-                <div class="corner top-left"></div>
-                <div class="corner top-right"></div>
-                <div class="corner bottom-left"></div>
-                <div class="corner bottom-right"></div>
-                <div class="scan-line"></div>
+              <div class="scanner-frame-bard">
+                <div class="scan-line-bard"></div>
+                <div class="guide-text">Arahkan barcode ke dalam area ini</div>
               </div>
+            </div>
+
+            <!-- Scanner Controls Overlay -->
+            <div class="scanner-controls-overlay" *ngIf="isScanning">
+              <button
+                type="button"
+                class="btn-flash-overlay"
+                (click)="toggleFlash()"
+                *ngIf="flashAvailable"
+                [class.active]="isFlashOn"
+              >
+                {{ isFlashOn ? '🔦' : '⚡' }}
+              </button>
+              <button
+                type="button"
+                class="btn-switch-camera"
+                (click)="switchCamera()"
+                *ngIf="hasMultipleCameras"
+              >
+                🔄
+              </button>
             </div>
           </div>
 
@@ -35,16 +53,6 @@
             <div class="scanner-buttons">
               <button type="button" class="btn-scan" (click)="toggleScanner()">
                 {{ isScanning ? 'Stop Scan' : 'Scan Barcode' }}
-              </button>
-
-              <button
-                type="button"
-                class="btn-flash"
-                (click)="toggleFlash()"
-                *ngIf="isScanning && flashAvailable"
-                [class.active]="isFlashOn"
-              >
-                {{ isFlashOn ? '🔦 Flash On' : '⚡ Flash Off' }}
               </button>
             </div>
 
@@ -66,7 +74,11 @@
             <div
               *ngIf="scanError"
               class="message"
-              [class.error-message]="scanError.includes('Gagal') || scanError.includes('sudah')"
+              [class.error-message]="
+                scanError.includes('Gagal') ||
+                scanError.includes('sudah') ||
+                scanError.includes('tidak tersedia')
+              "
               [class.success-message]="scanError.includes('berhasil')"
             >
               {{ scanError }}
@@ -75,11 +87,23 @@
             <div class="scanner-tips">
               <h4>Tips Scanning:</h4>
               <ul>
-                <li>Pastikan pencahayaan cukup</li>
-                <li>Jaga jarak 15-30 cm dari barcode</li>
-                <li>Pastikan barcode tidak rusak/tidak jelas</li>
+                <li>Pastikan barcode sejajar dengan garis scanner</li>
+                <li>Jaga jarak 10-20 cm dari kamera</li>
+                <li>Pastikan barcode tidak terlipat atau rusak</li>
                 <li>Gunakan flash jika kondisi gelap</li>
+                <li>Pindai barcode secara horizontal</li>
               </ul>
+            </div>
+
+            <div class="scanner-info" *ngIf="isScanning">
+              <div class="info-item">
+                <span class="info-label">Status:</span>
+                <span class="info-value">Mencari barcode...</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Kamera:</span>
+                <span class="info-value">{{ currentCamera }}</span>
+              </div>
             </div>
           </div>
         </div>

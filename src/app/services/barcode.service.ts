@@ -1,19 +1,25 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BarcodeService {
-  private html5QrcodeScanner!: Html5Qrcode;
+  private html5QrcodeScanner: any;
   private isScanning = new BehaviorSubject<boolean>(false);
   private barcodeResult = new BehaviorSubject<string>('');
   private flashStatus = new BehaviorSubject<{ isOn: boolean; available: boolean }>({
     isOn: false,
     available: false,
   });
+  private cameraInfo = new BehaviorSubject<{ hasMultipleCameras: boolean; currentCamera: string }>({
+    hasMultipleCameras: false,
+    currentCamera: '',
+  });
+
   private currentStream: MediaStream | null = null;
+  private cameras: any[] = [];
+  private currentCameraIndex = 0;
 
   constructor() {}
 
@@ -24,27 +30,38 @@ export class BarcodeService {
         throw new Error(`Container with id '${containerId}' not found`);
       }
 
+      // Dynamically import html5-qrcode to avoid type issues
+      const { Html5Qrcode } = await import('html5-qrcode');
       this.html5QrcodeScanner = new Html5Qrcode(containerId);
 
-      const cameras = await Html5Qrcode.getCameras();
-      if (cameras.length === 0) {
+      this.cameras = await Html5Qrcode.getCameras();
+      if (this.cameras.length === 0) {
         throw new Error('No cameras found. Please check camera permissions.');
       }
 
-      console.log('Available cameras:', cameras);
+      console.log('Available cameras:', this.cameras);
+
+      // Prioritize back camera
+      this.currentCameraIndex = this.cameras.findIndex(
+        (cam: any) =>
+          cam.label.toLowerCase().includes('back') || cam.label.toLowerCase().includes('rear')
+      );
+      if (this.currentCameraIndex === -1) {
+        this.currentCameraIndex = 0;
+      }
 
       const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 150 },
+        fps: 15,
+        qrbox: { width: 300, height: 100 },
         formatsToSupport: [
-          Html5QrcodeSupportedFormats.CODE_128,
-          Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.CODE_93,
-          Html5QrcodeSupportedFormats.EAN_13,
-          Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.UPC_A,
-          Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.QR_CODE,
+          'CODE_128',
+          'CODE_39',
+          'CODE_93',
+          'EAN_13',
+          'EAN_8',
+          'UPC_A',
+          'UPC_E',
+          'QR_CODE',
         ],
         experimentalFeatures: {
           useBarCodeDetectorIfSupported: true,
@@ -63,19 +80,14 @@ export class BarcodeService {
         }
       };
 
-      // Prioritize back camera
-      const cameraId =
-        cameras.find(
-          (cam) =>
-            cam.label.toLowerCase().includes('back') || cam.label.toLowerCase().includes('rear')
-        )?.id || cameras[0].id;
-
+      const cameraId = this.cameras[this.currentCameraIndex].id;
       await this.html5QrcodeScanner.start(cameraId, config, successCallback, errorCallback);
 
       this.isScanning.next(true);
+      this.updateCameraInfo();
 
       // Get the video stream for flash control
-      this.getVideoStream(cameraId);
+      await this.getVideoStream(cameraId);
     } catch (error) {
       console.error('Error starting scanner:', error);
       this.isScanning.next(false);
@@ -96,6 +108,22 @@ export class BarcodeService {
       this.checkFlashAvailability();
     } catch (error) {
       console.error('Error getting video stream:', error);
+    }
+  }
+
+  async switchCamera(): Promise<void> {
+    if (this.cameras.length <= 1) {
+      throw new Error('Only one camera available');
+    }
+
+    this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
+
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+      await this.stopScanner();
+      // Tunggu sebentar sebelum restart
+      setTimeout(async () => {
+        await this.startScanner('barcode-scanner');
+      }, 500);
     }
   }
 
@@ -147,30 +175,51 @@ export class BarcodeService {
     }
   }
 
-  stopScanner(): void {
-    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
-      this.html5QrcodeScanner
-        .stop()
-        .then(() => {
-          this.isScanning.next(false);
-          this.flashStatus.next({ isOn: false, available: false });
-
-          // Stop the media stream
-          if (this.currentStream) {
-            this.currentStream.getTracks().forEach((track) => track.stop());
-            this.currentStream = null;
-          }
-
-          console.log('Scanner stopped successfully');
-        })
-        .catch((error) => {
-          console.error('Error stopping scanner:', error);
-          this.isScanning.next(false);
-          this.flashStatus.next({ isOn: false, available: false });
-        });
-    }
+  private updateCameraInfo(): void {
+    const currentCamera = this.cameras[this.currentCameraIndex];
+    this.cameraInfo.next({
+      hasMultipleCameras: this.cameras.length > 1,
+      currentCamera: currentCamera?.label || `Kamera ${this.currentCameraIndex + 1}`,
+    });
   }
 
+  stopScanner(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+        this.html5QrcodeScanner
+          .stop()
+          .then(() => {
+            this.isScanning.next(false);
+            this.flashStatus.next({ isOn: false, available: false });
+            this.cameraInfo.next({ hasMultipleCameras: false, currentCamera: '' });
+
+            if (this.currentStream) {
+              this.currentStream.getTracks().forEach((track) => track.stop());
+              this.currentStream = null;
+            }
+
+            console.log('Scanner stopped successfully');
+            resolve();
+          })
+          .catch((error: any) => {
+            console.error('Error stopping scanner:', error);
+            this.isScanning.next(false);
+            this.flashStatus.next({ isOn: false, available: false });
+            reject(error);
+          });
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  destroyScanner(): void {
+    this.stopScanner().catch((error) => {
+      console.error('Error destroying scanner:', error);
+    });
+  }
+
+  // Public observable getters
   getBarcodeResult(): Observable<string> {
     return this.barcodeResult.asObservable();
   }
@@ -183,14 +232,15 @@ export class BarcodeService {
     return this.flashStatus.asObservable();
   }
 
-  destroyScanner(): void {
-    this.stopScanner();
+  getCameraInfo(): Observable<{ hasMultipleCameras: boolean; currentCamera: string }> {
+    return this.cameraInfo.asObservable();
   }
 
   async restartScanner(containerId: string): Promise<void> {
-    this.stopScanner();
-    setTimeout(() => {
-      this.startScanner(containerId);
+    await this.stopScanner();
+    // Tunggu sebentar sebelum restart
+    setTimeout(async () => {
+      await this.startScanner(containerId);
     }, 500);
   }
 }

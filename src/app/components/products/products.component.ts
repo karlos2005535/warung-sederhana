@@ -45,6 +45,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
   isScanning = false;
   isFlashOn = false;
   flashAvailable = false;
+  hasMultipleCameras = false;
+  currentCamera = 'Kamera Belakang';
   scanError = '';
   scannerInitialized = false;
   private subscriptions: Subscription[] = [];
@@ -57,39 +59,41 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.push(
-      this.barcodeService.getBarcodeResult().subscribe((barcode) => {
+      this.barcodeService.getBarcodeResult().subscribe((barcode: string) => {
         this.product.barcode = barcode;
         this.checkExistingProduct(barcode);
       }),
-      this.barcodeService.getScanningStatus().subscribe((scanning) => {
+      this.barcodeService.getScanningStatus().subscribe((scanning: boolean) => {
         this.isScanning = scanning;
       }),
-      this.barcodeService.getFlashStatus().subscribe((flashStatus) => {
-        this.isFlashOn = flashStatus.isOn;
-        this.flashAvailable = flashStatus.available;
-      })
+      this.barcodeService
+        .getFlashStatus()
+        .subscribe((flashStatus: { isOn: boolean; available: boolean }) => {
+          this.isFlashOn = flashStatus.isOn;
+          this.flashAvailable = flashStatus.available;
+        }),
+      this.barcodeService
+        .getCameraInfo()
+        .subscribe((cameraInfo: { hasMultipleCameras: boolean; currentCamera: string }) => {
+          this.hasMultipleCameras = cameraInfo.hasMultipleCameras;
+          this.currentCamera = cameraInfo.currentCamera;
+        })
     );
   }
 
   async toggleScanner() {
     if (this.isScanning) {
-      this.barcodeService.stopScanner();
+      await this.barcodeService.stopScanner();
       this.isFlashOn = false;
     } else {
       try {
         await this.barcodeService.startScanner('barcode-scanner');
         this.scanError = '';
         this.scannerInitialized = true;
-
-        // Check flash availability after scanner starts
-        setTimeout(() => {
-          this.barcodeService.checkFlashAvailability();
-        }, 1000);
       } catch (error) {
         console.error('Scanner error:', error);
         this.scanError = 'Gagal mengakses kamera. Pastikan kamera tersedia dan diizinkan.';
 
-        // Fallback: Suggest manual input
         setTimeout(() => {
           if (this.scanError) {
             this.scanError += ' Silakan gunakan input manual.';
@@ -105,6 +109,18 @@ export class ProductsComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Flash error:', error);
       this.scanError = 'Flash tidak tersedia pada perangkat ini';
+      setTimeout(() => {
+        this.scanError = '';
+      }, 3000);
+    }
+  }
+
+  async switchCamera() {
+    try {
+      await this.barcodeService.switchCamera();
+    } catch (error) {
+      console.error('Camera switch error:', error);
+      this.scanError = 'Gagal mengganti kamera';
       setTimeout(() => {
         this.scanError = '';
       }, 3000);
