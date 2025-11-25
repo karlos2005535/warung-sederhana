@@ -1,0 +1,255 @@
+<div class="products-list-container">
+  <div class="products-list-header">
+    <h1>📋 Daftar Semua Produk</h1>
+    <div class="header-actions">
+      <button class="btn-back" (click)="goBack()">← Kembali ke Dashboard</button>
+      <button class="btn-add" (click)="goToAddProduct()">➕ Tambah Produk Baru</button>
+    </div>
+  </div>
+
+  <!-- Filter dan Pencarian -->
+  <div class="filters-section">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Cari produk atau barcode..."
+        [(ngModel)]="searchTerm"
+        (input)="filterProducts()"
+      />
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="filter-controls">
+      <select [(ngModel)]="selectedCategory" (change)="filterProducts()">
+        <option value="">Semua Kategori</option>
+        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+      </select>
+
+      <select [(ngModel)]="stockFilter" (change)="filterProducts()">
+        <option value="all">Semua Stok</option>
+        <option value="low">Stok Rendah</option>
+        <option value="out">Stok Habis</option>
+        <option value="available">Stok Tersedia</option>
+      </select>
+
+      <button class="btn-export" (click)="exportProducts()">📄 Export Data</button>
+    </div>
+  </div>
+
+  <!-- Statistik Produk -->
+  <div class="products-stats">
+    <div class="stat-card">
+      <div class="stat-number">{{ totalProducts }}</div>
+      <div class="stat-label">Total Produk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ lowStockProducts }}</div>
+      <div class="stat-label">Stok Rendah</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ outOfStockProducts }}</div>
+      <div class="stat-label">Stok Habis</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">Rp {{ totalInventoryValue.toLocaleString('id-ID') }}</div>
+      <div class="stat-label">Nilai Inventori</div>
+    </div>
+  </div>
+
+  <!-- Daftar Produk -->
+  <div class="products-table-section">
+    <div class="table-header">
+      <h3>Daftar Produk ({{ filteredProducts.length }} items)</h3>
+      <div class="table-info">
+        <span class="results-count"
+          >Menampilkan {{ filteredProducts.length }} dari {{ totalProducts }} produk</span
+        >
+      </div>
+    </div>
+
+    <div *ngIf="filteredProducts.length === 0" class="empty-state">
+      <div class="empty-icon">📦</div>
+      <h4>Tidak ada produk yang ditemukan</h4>
+      <p>Coba ubah filter pencarian atau tambahkan produk baru</p>
+      <button class="btn-primary" (click)="goToAddProduct()">➕ Tambah Produk Pertama</button>
+    </div>
+
+    <div class="products-grid" *ngIf="filteredProducts.length > 0">
+      <div
+        *ngFor="let product of filteredProducts"
+        class="product-card"
+        [class]="getStockStatusClass(product)"
+      >
+        <div class="product-header">
+          <h4 class="product-name">{{ product.name }}</h4>
+          <span class="product-barcode">📊 {{ product.barcode }}</span>
+        </div>
+
+        <div class="product-details">
+          <div class="detail-item">
+            <span class="label">Kategori:</span>
+            <span class="value">{{ product.category || 'Tidak ada kategori' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Harga Jual:</span>
+            <span class="value price">Rp {{ product.price.toLocaleString('id-ID') }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Stok Tersedia:</span>
+            <span class="value stock" [class]="getStockStatusClass(product) + '-text'">
+              {{ product.stock }} pcs
+            </span>
+          </div>
+          <div class="detail-item" *ngIf="product.minStock > 0">
+            <span class="label">Stok Minimum:</span>
+            <span class="value">{{ product.minStock }} pcs</span>
+          </div>
+          <div class="detail-item" *ngIf="product.supplier">
+            <span class="label">Supplier:</span>
+            <span class="value">{{ product.supplier }}</span>
+          </div>
+        </div>
+
+        <div class="product-actions">
+          <button class="btn-edit" (click)="editProduct(product)">✏️ Edit</button>
+          <button
+            class="btn-restock"
+            (click)="showRestockModal(product)"
+            *ngIf="product.stock <= (product.minStock || 5)"
+          >
+            📦 Restock
+          </button>
+          <button
+            class="btn-quick-restock"
+            (click)="quickRestock(product, 10)"
+            *ngIf="product.stock > 0"
+          >
+            ➕ Quick +10
+          </button>
+          <button class="btn-delete" (click)="deleteProduct(product.id)">🗑️ Hapus</button>
+        </div>
+
+        <div class="stock-indicator" [class]="getStockStatusClass(product)"></div>
+        <div class="stock-badge" [class]="getStockStatusClass(product) + '-badge'">
+          {{ getStockText(product) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Restock -->
+  <div *ngIf="showRestock" class="modal-overlay">
+    <div class="modal-content">
+      <h3>📦 Restock Produk</h3>
+      <p>
+        <strong>{{ selectedProduct?.name }}</strong>
+      </p>
+      <p>
+        Stok saat ini: <strong>{{ selectedProduct?.stock }} pcs</strong>
+      </p>
+
+      <div class="form-group">
+        <label>Jumlah Tambahan Stok:</label>
+        <input
+          type="number"
+          [(ngModel)]="restockQuantity"
+          min="1"
+          placeholder="Masukkan jumlah"
+          class="form-input"
+        />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cancelRestock()">Batal</button>
+        <button class="btn-confirm" (click)="confirmRestock()">✅ Konfirmasi Restock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Edit Produk -->
+  <div *ngIf="showEdit" class="modal-overlay">
+    <div class="modal-content edit-modal">
+      <h3>✏️ Edit Produk</h3>
+
+      <div class="form-group">
+        <label>Nama Produk *</label>
+        <input
+          type="text"
+          [(ngModel)]="editProductForm.name"
+          placeholder="Nama produk"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Barcode *</label>
+        <input
+          type="text"
+          [(ngModel)]="editProductForm.barcode"
+          placeholder="Kode barcode"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kategori</label>
+          <select [(ngModel)]="editProductForm.category" class="form-input">
+            <option value="">Pilih Kategori</option>
+            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Harga (Rp) *</label>
+          <input
+            type="number"
+            [(ngModel)]="editProductForm.price"
+            min="0"
+            placeholder="Harga"
+            class="form-input"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Stok *</label>
+          <input
+            type="number"
+            [(ngModel)]="editProductForm.stock"
+            min="0"
+            placeholder="Stok"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Stok Minimum</label>
+          <input
+            type="number"
+            [(ngModel)]="editProductForm.minStock"
+            min="0"
+            placeholder="Stok minimum"
+            class="form-input"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Supplier</label>
+        <input
+          type="text"
+          [(ngModel)]="editProductForm.supplier"
+          placeholder="Nama supplier"
+          class="form-input"
+        />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cancelEdit()">Batal</button>
+        <button class="btn-confirm" (click)="updateProduct()">💾 Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+</div>

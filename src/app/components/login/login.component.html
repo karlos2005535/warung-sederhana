@@ -1,0 +1,50 @@
+<!-- components/login/login.component.html -->
+<div class="login-container">
+  <div class="login-card fade-in-up">
+    <h1 class="title">Hallo Bree</h1>
+    <p class="subtitle">Masuk Lewat Sini Mas</p>
+
+    <form class="login-form" (submit)="login(); $event.preventDefault()">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          class="form-input"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Enter your username"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          class="form-input"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn-login">Sign In</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <p>Don't have an account? <a (click)="goToRegister()" class="link">Sign up here</a></p>
+    </div>
+
+    <!-- Demo Accounts -->
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px">
+      <p style="font-size: 12px; color: #666; margin: 0; text-align: center">
+        <strong>Demo Accounts:</strong><br />
+        admin / admin<br />
+        user / user123
+      </p>
+    </div>
+  </div>
+</div>

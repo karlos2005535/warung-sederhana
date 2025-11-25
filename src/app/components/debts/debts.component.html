@@ -1,0 +1,38 @@
+<div class="debts-container">
+  <div class="debts-header">
+    <h1>Ngutang</h1>
+    <button class="btn-back" (click)="goBack()">← Kembali ke Dashboard</button>
+  </div>
+
+  <div class="add-debt-form">
+    <h3>Tambah Piutang Baru</h3>
+    <div class="form-group">
+      <input type="text" placeholder="Nama Pelanggan" [(ngModel)]="newDebt.customerName" />
+      <input type="number" placeholder="Jumlah Piutang" [(ngModel)]="newDebt.amount" />
+      <input type="text" placeholder="Keterangan" [(ngModel)]="newDebt.description" />
+      <button (click)="addDebt()">Tambah Piutang</button>
+    </div>
+  </div>
+
+  <div class="debts-list">
+    <h3>Daftar Piutang</h3>
+    <div *ngIf="debts.length === 0" class="empty-state">Tidak ada piutang yang tercatat.</div>
+
+    <div *ngFor="let debt of debts" class="debt-item" [class.paid]="debt.paid">
+      <div class="debt-info">
+        <span class="customer-name">{{ debt.customerName }}</span>
+        <span class="debt-amount">{{ debt.amount | currency : 'IDR' }}</span>
+        <span class="debt-date">{{ debt.date | date : 'dd/MM/yyyy' }}</span>
+        <span class="debt-description">{{ debt.description }}</span>
+      </div>
+      <div class="debt-actions">
+        <span class="status" [class.unpaid]="!debt.paid" [class.paid]="debt.paid">
+          {{ debt.paid ? 'LUNAS' : 'BELUM LUNAS' }}
+        </span>
+        <button *ngIf="!debt.paid" class="btn-mark-paid" (click)="markAsPaid(debt.id)">
+          Tandai Lunas
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="categories-container">
+  <div class="categories-header">
+    <h1>Kelola Kategori</h1>
+    <button class="btn-back" (click)="goBack()">← Kembali ke Dashboard</button>
+  </div>
+
+  <div class="add-category-form">
+    <h3>Tambah Kategori Baru</h3>
+    <div class="form-group">
+      <input
+        type="text"
+        placeholder="Nama Kategori"
+        [(ngModel)]="newCategoryName"
+        (keyup.enter)="addCategory()"
+      />
+      <button (click)="addCategory()">Tambah Kategori</button>
+    </div>
+  </div>
+
+  <div class="categories-list">
+    <h3>Daftar Kategori</h3>
+    <div *ngIf="categories.length === 0" class="empty-state">
+      Belum ada kategori. Tambahkan kategori pertama Anda!
+    </div>
+    <div *ngFor="let category of categories" class="category-item">
+      <span class="category-name">{{ category.name }}</span>
+    </div>
+  </div>
+</div>

@@ -1,12 +1,16 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  standalone: true,
+  imports: [RouterOutlet, CommonModule],
+  template: `<router-outlet></router-outlet>`,
 })
-export class App {
-  protected readonly title = signal('baco-angular');
+export class AppComponent {
+  title = signal('warung-app'); // Menggunakan Signal
+
+  // Atau jika ingin reactive
+  title$ = signal('warung-app');
 }

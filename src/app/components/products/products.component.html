@@ -1,0 +1,198 @@
+<div class="products-container">
+  <div class="products-card">
+    <div class="header-section">
+      <h1 class="title">Tambah Barang Baru</h1>
+      <p class="subtitle">Toko Pak Baco - Kios Sembako Khas Indonesia</p>
+    </div>
+
+    <form class="product-form" (submit)="onSubmit($event)">
+      <!-- Barcode Section -->
+      <div class="form-section">
+        <h3 class="section-title">Scan Barcode</h3>
+
+        <div class="barcode-section">
+          <div class="scanner-container">
+            <div id="barcode-scanner" class="scanner-element"></div>
+            <div *ngIf="!isScanning" class="scanner-placeholder">
+              <i class="scanner-icon">📷</i>
+              <p>Klik tombol scan untuk memulai</p>
+              <small>Scanner akan menggunakan kamera belakang</small>
+            </div>
+
+            <!-- Scanner Overlay dengan Border -->
+            <div class="scanner-overlay" *ngIf="isScanning">
+              <div class="scanner-frame">
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+                <div class="scan-line"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="scanner-controls">
+            <div class="scanner-buttons">
+              <button type="button" class="btn-scan" (click)="toggleScanner()">
+                {{ isScanning ? 'Stop Scan' : 'Scan Barcode' }}
+              </button>
+
+              <button
+                type="button"
+                class="btn-flash"
+                (click)="toggleFlash()"
+                *ngIf="isScanning && flashAvailable"
+                [class.active]="isFlashOn"
+              >
+                {{ isFlashOn ? '🔦 Flash On' : '⚡ Flash Off' }}
+              </button>
+            </div>
+
+            <div class="manual-entry">
+              <label>Atau masukkan barcode manual:</label>
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-input"
+                  [(ngModel)]="product.barcode"
+                  name="barcode"
+                  placeholder="Masukkan kode barcode"
+                  (input)="onBarcodeInput()"
+                />
+                <button type="button" class="btn-check" (click)="manualBarcodeEntry()">Cek</button>
+              </div>
+            </div>
+
+            <div
+              *ngIf="scanError"
+              class="message"
+              [class.error-message]="scanError.includes('Gagal') || scanError.includes('sudah')"
+              [class.success-message]="scanError.includes('berhasil')"
+            >
+              {{ scanError }}
+            </div>
+
+            <div class="scanner-tips">
+              <h4>Tips Scanning:</h4>
+              <ul>
+                <li>Pastikan pencahayaan cukup</li>
+                <li>Jaga jarak 15-30 cm dari barcode</li>
+                <li>Pastikan barcode tidak rusak/tidak jelas</li>
+                <li>Gunakan flash jika kondisi gelap</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Details Section -->
+      <div class="form-section">
+        <h3 class="section-title">Detail Produk</h3>
+
+        <div class="form-group">
+          <label for="barcode">Kode Barcode *</label>
+          <input
+            type="text"
+            id="barcode"
+            class="form-input"
+            [(ngModel)]="product.barcode"
+            name="barcode"
+            placeholder="Kode barcode akan terisi otomatis setelah scan"
+            required
+            readonly
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Nama Produk *</label>
+            <input
+              type="text"
+              id="name"
+              class="form-input"
+              [(ngModel)]="product.name"
+              name="name"
+              placeholder="Masukkan nama produk"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="category">Kategori</label>
+            <select id="category" class="form-input" [(ngModel)]="product.category" name="category">
+              <option value="">Pilih Kategori</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Harga Jual (Rp) *</label>
+            <input
+              type="number"
+              id="price"
+              class="form-input"
+              [(ngModel)]="product.price"
+              name="price"
+              placeholder="0"
+              min="0"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="stock">Stok Awal *</label>
+            <input
+              type="number"
+              id="stock"
+              class="form-input"
+              [(ngModel)]="product.stock"
+              name="stock"
+              placeholder="0"
+              min="0"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="minStock">Stok Minimum</label>
+            <input
+              type="number"
+              id="minStock"
+              class="form-input"
+              [(ngModel)]="product.minStock"
+              name="minStock"
+              placeholder="0"
+              min="0"
+            />
+            <small class="help-text">Akan muncul peringatan ketika stok mencapai jumlah ini</small>
+          </div>
+
+          <div class="form-group">
+            <label for="supplier">Supplier</label>
+            <input
+              type="text"
+              id="supplier"
+              class="form-input"
+              [(ngModel)]="product.supplier"
+              name="supplier"
+              placeholder="Nama supplier"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="goToDashboard()">Kembali</button>
+        <button type="button" class="btn-outline" (click)="goToProductsList()">
+          Lihat Daftar Barang
+        </button>
+        <button type="submit" class="btn-primary">Simpan Produk</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,504 @@
+/* ===== IMPROVED RESPONSIVE STYLES ===== */
+
+/* Modal Responsive Improvements */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+
+  &.edit-modal {
+    max-width: 500px;
+  }
+
+  h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    text-align: center;
+    font-size: 1.4rem;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #555;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+  flex-wrap: wrap;
+
+  button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 120px;
+    box-sizing: border-box;
+  }
+
+  .btn-cancel {
+    background: #6c757d;
+    color: white;
+
+    &:hover {
+      background: #5a6268;
+    }
+  }
+
+  .btn-delete {
+    background: #dc3545;
+    color: white;
+
+    &:hover {
+      background: #c82333;
+    }
+  }
+
+  .btn-confirm {
+    background: #28a745;
+    color: white;
+
+    &:hover {
+      background: #218838;
+    }
+  }
+
+  .btn-save {
+    background: #007bff;
+    color: white;
+
+    &:hover {
+      background: #0056b3;
+    }
+  }
+}
+
+/* Improved Product Actions for Mobile */
+.product-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+
+  button {
+    padding: 10px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .btn-edit {
+    background: #17a2b8;
+    color: white;
+
+    &:hover {
+      background: #138496;
+    }
+  }
+
+  .btn-delete {
+    background: #dc3545;
+    color: white;
+
+    &:hover {
+      background: #c82333;
+    }
+  }
+
+  .btn-restock {
+    background: #28a745;
+    color: white;
+
+    &:hover {
+      background: #218838;
+    }
+  }
+
+  .btn-quick-restock {
+    background: #6f42c1;
+    color: white;
+
+    &:hover {
+      background: #5e34b1;
+    }
+  }
+}
+
+/* Enhanced Delete Confirmation Modal */
+.delete-confirmation-modal {
+  text-align: center;
+
+  .warning-icon {
+    font-size: 3rem;
+    color: #dc3545;
+    margin-bottom: 15px;
+  }
+
+  .confirmation-text {
+    margin-bottom: 20px;
+    line-height: 1.5;
+    color: #555;
+
+    .product-name {
+      font-weight: 700;
+      color: #333;
+    }
+  }
+}
+
+/* Improved Form Layout for Edit Modal */
+.edit-product-form {
+  .form-section {
+    margin-bottom: 25px;
+
+    .section-title {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e9ecef;
+      color: #333;
+    }
+  }
+}
+
+/* Stock Status Indicators in Form */
+.stock-status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+
+  &.normal {
+    background: #28a745;
+  }
+
+  &.low-stock {
+    background: #ffc107;
+  }
+
+  &.out-of-stock {
+    background: #dc3545;
+  }
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+
+/* Tablet Devices */
+@media (max-width: 1024px) {
+  .modal-content {
+    padding: 20px;
+
+    &.edit-modal {
+      max-width: 90%;
+    }
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  .products-list-container {
+    padding: 10px;
+  }
+
+  .products-list-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+
+    .header-actions {
+      justify-content: center;
+      width: 100%;
+
+      button {
+        flex: 1;
+        min-width: 140px;
+      }
+    }
+  }
+
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 15px;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    width: 100%;
+
+    select,
+    .btn-export {
+      width: 100%;
+    }
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .product-card {
+    padding: 15px;
+
+    .product-header {
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+
+      .product-barcode {
+        align-self: flex-start;
+      }
+    }
+  }
+
+  /* Improved Modal for Mobile */
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    margin: 0;
+    border-radius: 15px 15px 0 0;
+    max-height: 85vh;
+    max-width: none;
+
+    &.edit-modal {
+      max-width: none;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  /* Enhanced Product Actions for Mobile */
+  .product-actions {
+    flex-direction: row;
+
+    button {
+      min-width: 70px;
+      padding: 10px 8px;
+      font-size: 0.8rem;
+
+      /* Hide text on very small screens, show only icons */
+      @media (max-width: 480px) {
+        span:not(.icon) {
+          display: none;
+        }
+
+        .icon {
+          margin-right: 0;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  /* Product detail improvements */
+  .product-details .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  .products-list-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .products-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 15px;
+
+    .stat-number {
+      font-size: 1.7rem;
+    }
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .modal-content {
+    padding: 20px 15px;
+
+    h3 {
+      font-size: 1.3rem;
+    }
+  }
+
+  /* Compact product cards for very small screens */
+  .product-card {
+    padding: 12px;
+
+    .product-name {
+      font-size: 1rem;
+    }
+
+    .product-details .detail-item {
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+    }
+  }
+}
+
+/* Large Desktop Screens */
+@media (min-width: 1200px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  }
+
+  .modal-content.edit-modal {
+    max-width: 600px;
+  }
+}
+
+/* Animation Improvements */
+.modal-content {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile-specific animation */
+@media (max-width: 768px) {
+  .modal-content {
+    animation: modalSlideUp 0.3s ease-out;
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Focus management for accessibility */
+.modal-content:focus {
+  outline: none;
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .product-card {
+    border-width: 2px;
+  }
+
+  .modal-content {
+    border: 2px solid #333;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .modal-content,
+  .product-card,
+  button {
+    transition: none;
+    animation: none;
+  }
+}

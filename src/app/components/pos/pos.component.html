@@ -1,0 +1,68 @@
+<div class="pos-container">
+  <div class="pos-header">
+    <h1>Point of Sale</h1>
+    <button class="btn-back" (click)="goBack()">← Kembali</button>
+  </div>
+
+  <div class="pos-content">
+    <div class="scanner-section">
+      <h3>Scan Barcode</h3>
+      <button class="btn-scan" (click)="startScanner()">📷 Buka Kamera</button>
+
+      <div class="manual-input">
+        <input
+          type="text"
+          placeholder="Masukkan barcode manual"
+          [(ngModel)]="manualBarcode"
+          (keyup.enter)="addProductByBarcode()"
+        />
+        <button (click)="addProductByBarcode()">Tambah</button>
+      </div>
+
+      <div class="products-quick-list">
+        <h4>Produk Cepat</h4>
+        <div *ngFor="let product of products" class="quick-product" (click)="addToCart(product)">
+          <span>{{ product.name }}</span>
+          <span>{{ product.price | currency : 'IDR' }}</span>
+          <small>Stok: {{ product.stock }}</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-section">
+      <h3>Keranjang Belanja</h3>
+      <div class="cart-items">
+        <div *ngFor="let item of cartItems" class="cart-item">
+          <span class="item-name">{{ item.productName }}</span>
+          <div class="item-controls">
+            <button (click)="decreaseQuantity(item)">-</button>
+            <span class="quantity">{{ item.quantity }}</span>
+            <button (click)="increaseQuantity(item)">+</button>
+            <span class="price">{{ item.total | currency : 'IDR' }}</span>
+            <button class="btn-remove" (click)="removeItem(item)">×</button>
+          </div>
+        </div>
+        <div *ngIf="cartItems.length === 0" class="empty-cart">Keranjang kosong</div>
+      </div>
+
+      <div class="cart-total">
+        <strong>Total: {{ getCartTotal() | currency : 'IDR' }}</strong>
+      </div>
+
+      <div class="payment-section">
+        <input type="number" placeholder="Jumlah Uang" [(ngModel)]="cashReceived" min="0" />
+        <div class="change" *ngIf="cashReceived > 0">
+          Kembalian: {{ calculateChange() | currency : 'IDR' }}
+          <span *ngIf="calculateChange() < 0" class="change-warning">(Uang kurang!)</span>
+        </div>
+        <button
+          class="btn-process"
+          [disabled]="cartItems.length === 0 || cashReceived < getCartTotal()"
+          (click)="processPayment()"
+        >
+          Proses Pembayaran
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

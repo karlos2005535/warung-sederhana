@@ -1,0 +1,104 @@
+[debug] [2025-11-25T12:44:18.414Z] ----------------------------------------------------------------------
+[debug] [2025-11-25T12:44:18.417Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ASUS\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-11-25T12:44:18.417Z] CLI Version:   14.26.0
+[debug] [2025-11-25T12:44:18.417Z] Platform:      win32
+[debug] [2025-11-25T12:44:18.418Z] Node Version:  v22.19.0
+[debug] [2025-11-25T12:44:18.418Z] Time:          Tue Nov 25 2025 19:44:18 GMT+0700 (Western Indonesia Time)
+[debug] [2025-11-25T12:44:18.418Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-11-25T12:44:18.602Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-11-25T12:44:18.602Z] > authorizing via signed-in user (thomaskarlosbaco@gmail.com)
+[debug] [2025-11-25T12:44:18.602Z] [iam] checking project login-e2bd6 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-11-25T12:44:18.604Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:18.604Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:18.604Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/login-e2bd6:testIamPermissions [none]
+[debug] [2025-11-25T12:44:18.605Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/login-e2bd6:testIamPermissions x-goog-quota-user=projects/login-e2bd6
+[debug] [2025-11-25T12:44:18.605Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/login-e2bd6:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-11-25T12:44:20.491Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/login-e2bd6:testIamPermissions 200
+[debug] [2025-11-25T12:44:20.491Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/login-e2bd6:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-11-25T12:44:20.492Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:20.492Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:20.493Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/login-e2bd6 [none]
+[debug] [2025-11-25T12:44:22.317Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/login-e2bd6 200
+[debug] [2025-11-25T12:44:22.317Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/login-e2bd6 {"projectId":"login-e2bd6","projectNumber":"405226499483","displayName":"login","name":"projects/login-e2bd6","resources":{"hostingSite":"login-e2bd6"},"state":"ACTIVE","etag":"1_767c55dc-bc4e-4a55-b224-499fded5be42"}
+[info] 
+[info] === Deploying to 'login-e2bd6'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-11-25T12:44:22.325Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:22.325Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:22.325Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions [none]
+[debug] [2025-11-25T12:44:22.326Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-11-25T12:44:24.366Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions 200
+[debug] [2025-11-25T12:44:24.366Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions {"name":"projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[login-e2bd6]: beginning deploy... 
+[info] i  hosting[login-e2bd6]: found 5 files in dist/baco-angular/browser 
+[debug] [2025-11-25T12:44:24.384Z] [hosting] uploading with 200 concurrency
+[debug] [2025-11-25T12:44:24.451Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:24.452Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:24.453Z] [hosting] hash cache [ZGlzdFxiYWNvLWFuZ3VsYXJcYnJvd3Nlcg] stored for 5 files
+[debug] [2025-11-25T12:44:24.453Z] [hosting][hash queue][FINAL] {"max":62,"min":1,"avg":20.8,"active":0,"complete":5,"success":5,"errored":0,"retried":0,"total":5,"elapsed":66}
+[debug] [2025-11-25T12:44:24.454Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68:populateFiles [none]
+[debug] [2025-11-25T12:44:24.454Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68:populateFiles {"files":{"/favicon.ico":"a905b13e228420df3dbe746dfb656d37a49736494c0737d00e007c8dc7319912","/styles-7AKV472I.css":"0635d735b847ec3b73e577b91874d12cd4ddb25f7a36a9998758e2e47db9e256","/index.html":"b8f9d401900a4fa4c8ee67f0f7b7312ad50551e7222994cbd5b9445540c1633f","/polyfills-5CFQRCPP.js":"01200fec31742276cd52f441fe1fc84938c53abceeedd3f35725033f5e782591","/main-2WGOTJGB.js":"78b352f582fcef662343a6fddf611b2095a8d1e8ef5927d48172f647c3ba0f74"}}
+[debug] [2025-11-25T12:44:25.398Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68:populateFiles 200
+[debug] [2025-11-25T12:44:25.398Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68:populateFiles {"uploadRequiredHashes":["b8f9d401900a4fa4c8ee67f0f7b7312ad50551e7222994cbd5b9445540c1633f"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/login-e2bd6/versions/0a6f049dfcd84f68/files"}
+[debug] [2025-11-25T12:44:25.399Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:25.399Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:25.399Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/login-e2bd6/versions/0a6f049dfcd84f68/files/b8f9d401900a4fa4c8ee67f0f7b7312ad50551e7222994cbd5b9445540c1633f [none]
+[debug] [2025-11-25T12:44:25.399Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/login-e2bd6/versions/0a6f049dfcd84f68/files/b8f9d401900a4fa4c8ee67f0f7b7312ad50551e7222994cbd5b9445540c1633f [stream]
+[debug] [2025-11-25T12:44:25.401Z] [hosting][populate queue][FINAL] {"max":948,"min":948,"avg":948,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":950}
+[debug] [2025-11-25T12:44:25.401Z] [hosting] uploads queued: 1
+[debug] [2025-11-25T12:44:28.059Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/login-e2bd6/versions/0a6f049dfcd84f68/files/b8f9d401900a4fa4c8ee67f0f7b7312ad50551e7222994cbd5b9445540c1633f 200
+[debug] [2025-11-25T12:44:28.059Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/login-e2bd6/versions/0a6f049dfcd84f68/files/b8f9d401900a4fa4c8ee67f0f7b7312ad50551e7222994cbd5b9445540c1633f [stream]
+[debug] [2025-11-25T12:44:28.059Z] [hosting][upload queue][FINAL] {"max":2661,"min":2661,"avg":2661,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":2661}
+[info] +  hosting[login-e2bd6]: file upload complete 
+[debug] [2025-11-25T12:44:28.061Z] [hosting] deploy completed after 3692ms
+[debug] [2025-11-25T12:44:28.062Z] [
+  {
+    "config": {
+      "public": "dist/baco-angular/browser",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "login-e2bd6"
+    },
+    "version": "projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68"
+  }
+]
+[info] i  hosting[login-e2bd6]: finalizing version... 
+[debug] [2025-11-25T12:44:28.064Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:28.064Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:28.065Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions/0a6f049dfcd84f68 updateMask=status%2Cconfig
+[debug] [2025-11-25T12:44:28.065Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions/0a6f049dfcd84f68 {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]}}
+[debug] [2025-11-25T12:44:29.690Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions/0a6f049dfcd84f68 200
+[debug] [2025-11-25T12:44:29.690Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/versions/0a6f049dfcd84f68 {"name":"projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-11-25T12:44:22.647236Z","createUser":{"email":"thomaskarlosbaco@gmail.com"},"finalizeTime":"2025-11-25T12:44:27.821435Z","finalizeUser":{"email":"thomaskarlosbaco@gmail.com"}}
+[debug] [2025-11-25T12:44:29.690Z] [hosting] finalized version for login-e2bd6:[object Object]
+[info] +  hosting[login-e2bd6]: version finalized 
+[info] i  hosting[login-e2bd6]: releasing new version... 
+[debug] [2025-11-25T12:44:29.691Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:29.691Z] Checked if tokens are valid: true, expires at: 1764076760461
+[debug] [2025-11-25T12:44:29.691Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/channels/live/releases versionName=projects%2F405226499483%2Fsites%2Flogin-e2bd6%2Fversions%2F0a6f049dfcd84f68
+[debug] [2025-11-25T12:44:29.691Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/channels/live/releases {}
+[debug] [2025-11-25T12:44:30.714Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/channels/live/releases 200
+[debug] [2025-11-25T12:44:30.714Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/login-e2bd6/channels/live/releases {"name":"projects/405226499483/sites/login-e2bd6/channels/live/releases/1764074668918000","version":{"name":"projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-11-25T12:44:22.647236Z","createUser":{"email":"thomaskarlosbaco@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocJo8tcfHbYWC-3IyLZ3zZhM3VfX5C7PdDyB-8n8KYZFBCzdUde8"},"finalizeTime":"2025-11-25T12:44:27.821435Z","finalizeUser":{"email":"thomaskarlosbaco@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocJo8tcfHbYWC-3IyLZ3zZhM3VfX5C7PdDyB-8n8KYZFBCzdUde8"}},"type":"DEPLOY","releaseTime":"2025-11-25T12:44:28.918Z","releaseUser":{"email":"thomaskarlosbaco@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocJo8tcfHbYWC-3IyLZ3zZhM3VfX5C7PdDyB-8n8KYZFBCzdUde8"}}
+[debug] [2025-11-25T12:44:30.714Z] [hosting] release: {"name":"projects/405226499483/sites/login-e2bd6/channels/live/releases/1764074668918000","version":{"name":"projects/405226499483/sites/login-e2bd6/versions/0a6f049dfcd84f68","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-11-25T12:44:22.647236Z","createUser":{"email":"thomaskarlosbaco@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocJo8tcfHbYWC-3IyLZ3zZhM3VfX5C7PdDyB-8n8KYZFBCzdUde8"},"finalizeTime":"2025-11-25T12:44:27.821435Z","finalizeUser":{"email":"thomaskarlosbaco@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocJo8tcfHbYWC-3IyLZ3zZhM3VfX5C7PdDyB-8n8KYZFBCzdUde8"}},"type":"DEPLOY","releaseTime":"2025-11-25T12:44:28.918Z","releaseUser":{"email":"thomaskarlosbaco@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocJo8tcfHbYWC-3IyLZ3zZhM3VfX5C7PdDyB-8n8KYZFBCzdUde8"}}
+[info] +  hosting[login-e2bd6]: release complete 
+[info] 
+[info] +  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/login-e2bd6/overview
+[info] Hosting URL: https://login-e2bd6.web.app
+[debug] [2025-11-25T12:44:35.945Z] Error: Timed out.
+    at Timeout.<anonymous> (C:\Users\ASUS\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:275:49)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[error] 
+[error] Error: An unexpected error has occurred.
