@@ -6,6 +6,26 @@ import { ProductService, Product } from '../../services/product.service';
 import { BarcodeService } from '../../services/barcode.service';
 import { Subscription } from 'rxjs';
 
+interface ProductFormData {
+  barcode: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  minStock: number;
+  supplier: string;
+}
+
+interface FlashStatus {
+  isOn: boolean;
+  available: boolean;
+}
+
+interface CameraInfo {
+  hasMultipleCameras: boolean;
+  currentCamera: string;
+}
+
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -14,15 +34,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./products.component.scss'],
 })
 export class ProductsComponent implements OnInit, OnDestroy {
-  product: {
-    barcode: string;
-    name: string;
-    category: string;
-    price: number;
-    stock: number;
-    minStock: number;
-    supplier: string;
-  } = {
+  product: ProductFormData = {
     barcode: '',
     name: '',
     category: '',
@@ -32,7 +44,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     supplier: '',
   };
 
-  categories = [
+  categories: string[] = [
     'Makanan Instan',
     'Minuman',
     'Snack',
@@ -42,13 +54,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
     'Lainnya',
   ];
 
-  isScanning = false;
-  isFlashOn = false;
-  flashAvailable = false;
-  hasMultipleCameras = false;
-  currentCamera = 'Kamera Belakang';
-  scanError = '';
-  scannerInitialized = false;
+  isScanning: boolean = false;
+  isFlashOn: boolean = false;
+  flashAvailable: boolean = false;
+  hasMultipleCameras: boolean = false;
+  currentCamera: string = 'Kamera Belakang';
+  scanError: string = '';
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -57,31 +69,38 @@ export class ProductsComponent implements OnInit, OnDestroy {
     private barcodeService: BarcodeService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.setupSubscriptions();
+  }
+
+  private setupSubscriptions(): void {
     this.subscriptions.push(
       this.barcodeService.getBarcodeResult().subscribe((barcode: string) => {
-        this.product.barcode = barcode;
-        this.checkExistingProduct(barcode);
+        this.handleBarcodeResult(barcode);
       }),
+
       this.barcodeService.getScanningStatus().subscribe((scanning: boolean) => {
         this.isScanning = scanning;
       }),
-      this.barcodeService
-        .getFlashStatus()
-        .subscribe((flashStatus: { isOn: boolean; available: boolean }) => {
-          this.isFlashOn = flashStatus.isOn;
-          this.flashAvailable = flashStatus.available;
-        }),
-      this.barcodeService
-        .getCameraInfo()
-        .subscribe((cameraInfo: { hasMultipleCameras: boolean; currentCamera: string }) => {
-          this.hasMultipleCameras = cameraInfo.hasMultipleCameras;
-          this.currentCamera = cameraInfo.currentCamera;
-        })
+
+      this.barcodeService.getFlashStatus().subscribe((flashStatus: FlashStatus) => {
+        this.isFlashOn = flashStatus.isOn;
+        this.flashAvailable = flashStatus.available;
+      }),
+
+      this.barcodeService.getCameraInfo().subscribe((cameraInfo: CameraInfo) => {
+        this.hasMultipleCameras = cameraInfo.hasMultipleCameras;
+        this.currentCamera = cameraInfo.currentCamera;
+      })
     );
   }
 
-  async toggleScanner() {
+  private handleBarcodeResult(barcode: string): void {
+    this.product.barcode = barcode;
+    this.checkExistingProduct(barcode);
+  }
+
+  async toggleScanner(): Promise<void> {
     if (this.isScanning) {
       await this.barcodeService.stopScanner();
       this.isFlashOn = false;
@@ -89,59 +108,59 @@ export class ProductsComponent implements OnInit, OnDestroy {
       try {
         await this.barcodeService.startScanner('barcode-scanner');
         this.scanError = '';
-        this.scannerInitialized = true;
       } catch (error) {
         console.error('Scanner error:', error);
         this.scanError = 'Gagal mengakses kamera. Pastikan kamera tersedia dan diizinkan.';
-
-        setTimeout(() => {
-          if (this.scanError) {
-            this.scanError += ' Silakan gunakan input manual.';
-          }
-        }, 2000);
+        this.clearErrorAfterTimeout();
       }
     }
   }
 
-  async toggleFlash() {
+  async toggleFlash(): Promise<void> {
     try {
       await this.barcodeService.toggleFlash();
     } catch (error) {
       console.error('Flash error:', error);
       this.scanError = 'Flash tidak tersedia pada perangkat ini';
-      setTimeout(() => {
-        this.scanError = '';
-      }, 3000);
+      this.clearErrorAfterTimeout();
     }
   }
 
-  async switchCamera() {
+  async switchCamera(): Promise<void> {
     try {
       await this.barcodeService.switchCamera();
     } catch (error) {
       console.error('Camera switch error:', error);
       this.scanError = 'Gagal mengganti kamera';
-      setTimeout(() => {
-        this.scanError = '';
-      }, 3000);
+      this.clearErrorAfterTimeout();
     }
   }
 
-  checkExistingProduct(barcode: string) {
+  private clearErrorAfterTimeout(): void {
+    setTimeout(() => {
+      this.scanError = '';
+    }, 3000);
+  }
+
+  checkExistingProduct(barcode: string): void {
     const existingProduct = this.productService.getProductByBarcode(barcode);
     if (existingProduct) {
       this.scanError = `Barcode sudah terdaftar: ${existingProduct.name}`;
     } else {
       this.scanError = 'Barcode berhasil di-scan! Silakan lengkapi data produk.';
-      setTimeout(() => {
-        if (this.scanError.includes('berhasil')) {
-          this.scanError = '';
-        }
-      }, 3000);
+      this.clearSuccessMessageAfterTimeout();
     }
   }
 
-  onBarcodeInput() {
+  private clearSuccessMessageAfterTimeout(): void {
+    setTimeout(() => {
+      if (this.scanError.includes('berhasil')) {
+        this.scanError = '';
+      }
+    }, 3000);
+  }
+
+  onBarcodeInput(): void {
     if (this.product.barcode) {
       this.checkExistingProduct(this.product.barcode);
     } else {
@@ -149,7 +168,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
   }
 
-  manualBarcodeEntry() {
+  manualBarcodeEntry(): void {
     if (!this.product.barcode) {
       this.scanError = 'Barcode harus diisi';
       return;
@@ -157,14 +176,25 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.checkExistingProduct(this.product.barcode);
   }
 
-  onSubmit(event: Event) {
+  onSubmit(event: Event): void {
     event.preventDefault();
 
     if (!this.validateForm()) {
       return;
     }
 
-    const success = this.productService.addProduct(this.product);
+    // Convert ProductFormData to Product (without id and createdAt)
+    const productData: Omit<Product, 'id' | 'createdAt'> = {
+      barcode: this.product.barcode,
+      name: this.product.name,
+      category: this.product.category,
+      price: this.product.price,
+      stock: this.product.stock,
+      minStock: this.product.minStock,
+      supplier: this.product.supplier,
+    };
+
+    const success = this.productService.addProduct(productData);
     if (success) {
       alert('Produk berhasil ditambahkan!');
       this.resetForm();
@@ -175,12 +205,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   validateForm(): boolean {
-    if (!this.product.barcode) {
+    if (!this.product.barcode.trim()) {
       alert('Barcode harus diisi');
       return false;
     }
 
-    if (!this.product.name) {
+    if (!this.product.name.trim()) {
       alert('Nama produk harus diisi');
       return false;
     }
@@ -204,7 +234,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  resetForm() {
+  resetForm(): void {
     this.product = {
       barcode: '',
       name: '',
@@ -216,18 +246,33 @@ export class ProductsComponent implements OnInit, OnDestroy {
     };
     this.scanError = '';
     this.isFlashOn = false;
-    this.barcodeService.stopScanner();
+    this.barcodeService
+      .stopScanner()
+      .catch((error) => console.error('Error stopping scanner during reset:', error));
   }
 
-  goToProductsList() {
+  goToProductsList(): void {
     this.router.navigate(['/products-list']);
   }
 
-  goToDashboard() {
+  goToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
 
-  ngOnDestroy() {
+  getMessageClass(): string {
+    if (
+      this.scanError.includes('Gagal') ||
+      this.scanError.includes('sudah') ||
+      this.scanError.includes('tidak tersedia')
+    ) {
+      return 'message error-message';
+    } else if (this.scanError.includes('berhasil')) {
+      return 'message success-message';
+    }
+    return 'message';
+  }
+
+  ngOnDestroy(): void {
     this.barcodeService.destroyScanner();
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
