@@ -280,19 +280,20 @@ export class WarungService {
       ...sale,
       id: Date.now(),
       date: new Date(),
+      status: 'completed', // Tambahkan status default
     };
     this.sales.push(newSale);
     this.saveToLocalStorage();
   }
 
-  getSales() {
+  getSales(): any[] {
     return this.sales;
   }
 
   getTodaySales(): number {
     const today = new Date().toDateString();
     return this.sales
-      .filter((sale) => new Date(sale.date).toDateString() === today)
+      .filter((sale) => new Date(sale.date).toDateString() === today && sale.status === 'completed')
       .reduce((total, sale) => total + sale.total, 0);
   }
 
@@ -302,9 +303,47 @@ export class WarungService {
     return this.sales
       .filter((sale) => {
         const saleDate = new Date(sale.date);
-        return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
+        return (
+          saleDate.getMonth() === currentMonth &&
+          saleDate.getFullYear() === currentYear &&
+          sale.status === 'completed'
+        );
       })
       .reduce((total, sale) => total + sale.total, 0);
+  }
+
+  // ==================== STOCK RETURN & CANCELLATION METHODS ====================
+  returnStock(productId: number, quantity: number) {
+    const product = this.products.find((p) => p.id === productId);
+    if (product) {
+      product.stock += quantity;
+      product.updatedAt = new Date();
+      this.saveToLocalStorage();
+    }
+  }
+
+  cancelSale(saleId: number) {
+    const sale = this.sales.find((s) => s.id === saleId);
+    if (sale) {
+      sale.status = 'cancelled';
+      sale.cancelledAt = new Date();
+      this.saveToLocalStorage();
+    }
+  }
+
+  getCompletedSales(): any[] {
+    return this.sales.filter((sale) => sale.status === 'completed');
+  }
+
+  getCancelledSales(): any[] {
+    return this.sales.filter((sale) => sale.status === 'cancelled');
+  }
+
+  getSalesByDateRange(startDate: Date, endDate: Date): any[] {
+    return this.sales.filter((sale) => {
+      const saleDate = new Date(sale.date);
+      return saleDate >= startDate && saleDate <= endDate && sale.status === 'completed';
+    });
   }
 
   // ==================== UTILITY METHODS ====================
