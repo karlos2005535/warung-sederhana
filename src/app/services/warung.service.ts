@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +8,7 @@ export class WarungService {
   private categories: any[] = [];
   private debts: any[] = [];
   private sales: any[] = [];
-  private refunds: any[] = []; // ✅ ARRAY BARU UNTUK PENCATATAN PENGEMBALIAN UANG
+  private refunds: any[] = [];
 
   constructor() {
     this.loadFromLocalStorage();
@@ -92,13 +91,12 @@ export class WarungService {
     }
   }
 
-  // ==================== LOCAL STORAGE METHODS ====================
   private saveToLocalStorage(): void {
     localStorage.setItem('warung_products', JSON.stringify(this.products));
     localStorage.setItem('warung_categories', JSON.stringify(this.categories));
     localStorage.setItem('warung_debts', JSON.stringify(this.debts));
     localStorage.setItem('warung_sales', JSON.stringify(this.sales));
-    localStorage.setItem('warung_refunds', JSON.stringify(this.refunds)); // ✅ SIMPAN DATA REFUND
+    localStorage.setItem('warung_refunds', JSON.stringify(this.refunds));
   }
 
   private loadFromLocalStorage(): void {
@@ -107,7 +105,7 @@ export class WarungService {
       const categoriesData = localStorage.getItem('warung_categories');
       const debtsData = localStorage.getItem('warung_debts');
       const salesData = localStorage.getItem('warung_sales');
-      const refundsData = localStorage.getItem('warung_refunds'); // ✅ LOAD DATA REFUND
+      const refundsData = localStorage.getItem('warung_refunds');
 
       if (productsData) this.products = JSON.parse(productsData);
       if (categoriesData) this.categories = JSON.parse(categoriesData);
@@ -124,7 +122,7 @@ export class WarungService {
     }
   }
 
-  // ==================== PRODUCT METHODS ====================
+  // PRODUCT METHODS
   getProducts(): any[] {
     return this.products;
   }
@@ -197,7 +195,121 @@ export class WarungService {
     }
   }
 
-  // ==================== CATEGORY METHODS ====================
+  // SALES & REFUND METHODS
+  updateStock(productId: number, quantity: number) {
+    const product = this.products.find((p) => p.id === productId);
+    if (product) {
+      product.stock -= quantity;
+      product.updatedAt = new Date();
+      this.saveToLocalStorage();
+    }
+  }
+
+  addSale(sale: any) {
+    const newSale = {
+      ...sale,
+      id: Date.now(),
+      date: new Date(),
+      status: 'completed',
+    };
+    this.sales.push(newSale);
+    this.saveToLocalStorage();
+  }
+
+  getSales(): any[] {
+    return this.sales;
+  }
+
+  returnStock(productId: number, quantity: number) {
+    const product = this.products.find((p) => p.id === productId);
+    if (product) {
+      product.stock += quantity;
+      product.updatedAt = new Date();
+      this.saveToLocalStorage();
+    }
+  }
+
+  addRefund(saleId: number, refundAmount: number, reason: string = 'Pembatalan transaksi') {
+    const sale = this.sales.find((s) => s.id === saleId);
+    if (sale) {
+      const refundRecord = {
+        id: Date.now(),
+        saleId: saleId,
+        originalSale: { ...sale },
+        refundAmount: refundAmount,
+        reason: reason,
+        refundDate: new Date(),
+        processedBy: 'Kasir',
+      };
+
+      this.refunds.push(refundRecord);
+      this.saveToLocalStorage();
+      return refundRecord;
+    }
+    return null;
+  }
+
+  cancelSale(saleId: number): boolean {
+    const sale = this.sales.find((s) => s.id === saleId);
+    if (sale && sale.status === 'completed') {
+      // Kembalikan stok semua produk
+      sale.items.forEach((item: any) => {
+        this.returnStock(item.id, item.quantity);
+      });
+
+      // Catat pengembalian uang
+      this.addRefund(saleId, sale.cashReceived, 'Pembatalan transaksi lengkap');
+
+      // Tandai transaksi sebagai dibatalkan
+      sale.status = 'cancelled';
+      sale.cancelledAt = new Date();
+      sale.refundAmount = sale.cashReceived;
+
+      this.saveToLocalStorage();
+      return true;
+    }
+    return false;
+  }
+
+  getRefunds(): any[] {
+    return this.refunds;
+  }
+
+  getTotalRefunds(): number {
+    return this.refunds.reduce((total, refund) => total + refund.refundAmount, 0);
+  }
+
+  getCompletedSales(): any[] {
+    return this.sales.filter((sale) => sale.status === 'completed');
+  }
+
+  getCancelledSales(): any[] {
+    return this.sales.filter((sale) => sale.status === 'cancelled');
+  }
+
+  getTodaySales(): number {
+    const today = new Date().toDateString();
+    return this.sales
+      .filter((sale) => new Date(sale.date).toDateString() === today && sale.status === 'completed')
+      .reduce((total, sale) => total + sale.total, 0);
+  }
+
+  getMonthlySales(): number {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    return this.sales
+      .filter((sale) => {
+        const saleDate = new Date(sale.date);
+        return (
+          saleDate.getMonth() === currentMonth &&
+          saleDate.getFullYear() === currentYear &&
+          sale.status === 'completed'
+        );
+      })
+      .reduce((total, sale) => total + sale.total, 0);
+  }
+
+  // CATEGORY METHODS
   getCategories() {
     return this.categories;
   }
@@ -228,7 +340,7 @@ export class WarungService {
     return false;
   }
 
-  // ==================== DEBT METHODS ====================
+  // DEBT METHODS
   getDebts() {
     return this.debts;
   }
@@ -266,126 +378,7 @@ export class WarungService {
     return this.getActiveDebts().reduce((total, debt) => total + debt.amount, 0);
   }
 
-  // ==================== SALES & REFUND METHODS ====================
-  updateStock(productId: number, quantity: number) {
-    const product = this.products.find((p) => p.id === productId);
-    if (product) {
-      product.stock -= quantity;
-      product.updatedAt = new Date();
-      this.saveToLocalStorage();
-    }
-  }
-
-  addSale(sale: any) {
-    const newSale = {
-      ...sale,
-      id: Date.now(),
-      date: new Date(),
-      status: 'completed',
-    };
-    this.sales.push(newSale);
-    this.saveToLocalStorage();
-  }
-
-  getSales(): any[] {
-    return this.sales;
-  }
-
-  // ✅ METHOD PENGEMBALIAN STOK
-  returnStock(productId: number, quantity: number) {
-    const product = this.products.find((p) => p.id === productId);
-    if (product) {
-      product.stock += quantity;
-      product.updatedAt = new Date();
-      this.saveToLocalStorage();
-    }
-  }
-
-  // ✅ METHOD PENCATATAN PENGEMBALIAN UANG
-  addRefund(saleId: number, refundAmount: number, reason: string = 'Pembatalan transaksi') {
-    const sale = this.sales.find((s) => s.id === saleId);
-    if (sale) {
-      const refundRecord = {
-        id: Date.now(),
-        saleId: saleId,
-        originalSale: { ...sale },
-        refundAmount: refundAmount,
-        reason: reason,
-        refundDate: new Date(),
-        processedBy: 'Kasir',
-      };
-
-      this.refunds.push(refundRecord);
-      this.saveToLocalStorage();
-      return refundRecord;
-    }
-    return null;
-  }
-
-  // ✅ METHOD BATALKAN TRANSAKSI + PENGEMBALIAN UANG LENGKAP
-  cancelSale(saleId: number): boolean {
-    const sale = this.sales.find((s) => s.id === saleId);
-    if (sale && sale.status === 'completed') {
-      // 1. Kembalikan stok semua produk
-      sale.items.forEach((item: any) => {
-        this.returnStock(item.id, item.quantity);
-      });
-
-      // 2. Catat pengembalian uang
-      this.addRefund(saleId, sale.cashReceived, 'Pembatalan transaksi lengkap');
-
-      // 3. Tandai transaksi sebagai dibatalkan
-      sale.status = 'cancelled';
-      sale.cancelledAt = new Date();
-      sale.refundAmount = sale.cashReceived;
-
-      this.saveToLocalStorage();
-      return true;
-    }
-    return false;
-  }
-
-  // ✅ METHOD AMBIL DATA PENGEMBALIAN UANG
-  getRefunds(): any[] {
-    return this.refunds;
-  }
-
-  // ✅ METHOD HITUNG TOTAL PENGEMBALIAN UANG
-  getTotalRefunds(): number {
-    return this.refunds.reduce((total, refund) => total + refund.refundAmount, 0);
-  }
-
-  getCompletedSales(): any[] {
-    return this.sales.filter((sale) => sale.status === 'completed');
-  }
-
-  getCancelledSales(): any[] {
-    return this.sales.filter((sale) => sale.status === 'cancelled');
-  }
-
-  getTodaySales(): number {
-    const today = new Date().toDateString();
-    return this.sales
-      .filter((sale) => new Date(sale.date).toDateString() === today && sale.status === 'completed')
-      .reduce((total, sale) => total + sale.total, 0);
-  }
-
-  getMonthlySales(): number {
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    return this.sales
-      .filter((sale) => {
-        const saleDate = new Date(sale.date);
-        return (
-          saleDate.getMonth() === currentMonth &&
-          saleDate.getFullYear() === currentYear &&
-          sale.status === 'completed'
-        );
-      })
-      .reduce((total, sale) => total + sale.total, 0);
-  }
-
-  // ==================== UTILITY METHODS ====================
+  // UTILITY METHODS
   getLowStockProducts(): any[] {
     return this.products.filter(
       (product) => product.stock > 0 && product.stock <= (product.minStock || 5)

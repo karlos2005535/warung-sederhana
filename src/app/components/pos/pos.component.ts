@@ -1,5 +1,5 @@
 // components/pos/pos.component.ts
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { WarungService } from '../../services/warung.service';
   templateUrl: './pos.component.html',
   styleUrls: ['./pos.component.scss'],
 })
-export class PosComponent {
+export class PosComponent implements OnInit {
   products: any[] = [];
   cart: any[] = [];
   cash: number = 0;
@@ -20,13 +20,18 @@ export class PosComponent {
   showCancelModal: boolean = false;
   selectedTransaction: any = null;
   refundHistory: any[] = [];
+  showRefundHistory: boolean = false;
 
   constructor(private warungService: WarungService, private router: Router) {}
 
   ngOnInit() {
-    this.products = this.warungService.getProducts();
+    this.loadProducts();
     this.loadRecentTransactions();
     this.loadRefundHistory();
+  }
+
+  loadProducts() {
+    this.products = this.warungService.getProducts();
   }
 
   addToCart(product: any) {
@@ -38,7 +43,12 @@ export class PosComponent {
         existing.quantity++;
       }
     } else {
-      this.cart.push({ ...product, quantity: 1 });
+      this.cart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+      });
     }
   }
 
@@ -53,7 +63,7 @@ export class PosComponent {
     if (item.quantity > 1) {
       item.quantity--;
     } else {
-      this.cart = this.cart.filter((i) => i !== item);
+      this.removeFromCart(item);
     }
   }
 
@@ -71,45 +81,57 @@ export class PosComponent {
 
   processPayment() {
     if (this.cash >= this.getTotal()) {
+      // Update stock untuk setiap item di cart
       this.cart.forEach((item) => {
         this.warungService.updateStock(item.id, item.quantity);
       });
 
+      // Buat transaksi baru
       const newTransaction = {
         id: Date.now(),
         date: new Date(),
-        items: [...this.cart],
+        items: this.cart.map((item) => ({ ...item })),
         total: this.getTotal(),
         cashReceived: this.cash,
         change: this.getChange(),
         status: 'completed',
       };
 
+      // Simpan transaksi
       this.warungService.addSale(newTransaction);
-      this.loadRecentTransactions();
 
+      // Refresh data
+      this.loadRecentTransactions();
+      this.loadProducts();
+
+      // Tampilkan alert sukses
       alert(
-        `Pembayaran berhasil!\nTotal: Rp ${this.getTotal().toLocaleString(
-          'id-ID'
-        )}\nKembalian: Rp ${this.getChange().toLocaleString('id-ID')}`
+        `✅ PEMBAYARAN BERHASIL!\n\n` +
+          `Total: Rp ${this.getTotal().toLocaleString('id-ID')}\n` +
+          `Tunai: Rp ${this.cash.toLocaleString('id-ID')}\n` +
+          `Kembalian: Rp ${this.getChange().toLocaleString('id-ID')}\n\n` +
+          `ID Transaksi: ${newTransaction.id}`
       );
 
+      // Reset cart dan cash
       this.cart = [];
       this.cash = 0;
-      this.products = this.warungService.getProducts();
     }
   }
 
   loadRecentTransactions() {
-    this.recentTransactions = this.warungService
-      .getSales()
+    const allSales = this.warungService.getSales();
+    this.recentTransactions = allSales
       .filter((sale) => sale.status === 'completed')
-      .slice(-5)
-      .reverse();
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5);
   }
 
   loadRefundHistory() {
-    this.refundHistory = this.warungService.getRefunds().slice(-3).reverse();
+    const allRefunds = this.warungService.getRefunds();
+    this.refundHistory = allRefunds
+      .sort((a, b) => new Date(b.refundDate).getTime() - new Date(a.refundDate).getTime())
+      .slice(0, 3);
   }
 
   openCancelModal(transaction: any) {
@@ -120,6 +142,13 @@ export class PosComponent {
   closeCancelModal() {
     this.showCancelModal = false;
     this.selectedTransaction = null;
+  }
+
+  toggleRefundHistory() {
+    this.showRefundHistory = !this.showRefundHistory;
+    if (this.showRefundHistory) {
+      this.loadRefundHistory();
+    }
   }
 
   cancelTransaction() {
@@ -144,9 +173,15 @@ export class PosComponent {
         this.closeCancelModal();
         this.loadRecentTransactions();
         this.loadRefundHistory();
-        this.products = this.warungService.getProducts();
+        this.loadProducts();
+      } else {
+        alert('❌ Gagal membatalkan transaksi!');
       }
     }
+  }
+
+  getRefundTotal(): number {
+    return this.warungService.getTotalRefunds();
   }
 
   goBack() {
