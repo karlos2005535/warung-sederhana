@@ -180,6 +180,23 @@ export class PosComponent implements OnInit {
     }
   }
 
+  // Method baru untuk menghapus transaksi tanpa refund
+  removeTransaction(transaction: any) {
+    if (
+      confirm(
+        'Apakah Anda yakin ingin menghapus transaksi ini dari daftar?\n\n' +
+          `ID Transaksi: ${transaction.id}\n` +
+          `Total: Rp ${transaction.total.toLocaleString('id-ID')}\n\n` +
+          'Catatan: Tindakan ini hanya menghapus transaksi dari tampilan, tidak melakukan pengembalian uang atau stok.'
+      )
+    ) {
+      // Hapus transaksi dari daftar recentTransactions
+      this.recentTransactions = this.recentTransactions.filter((t) => t.id !== transaction.id);
+
+      alert('✅ Transaksi berhasil dihapus dari daftar!');
+    }
+  }
+
   getRefundTotal(): number {
     return this.warungService.getTotalRefunds();
   }

@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { WarungService } from '../../services/warung.service';
+import { BarcodeService } from '../../services/barcode.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-products-list',
@@ -11,7 +13,7 @@ import { WarungService } from '../../services/warung.service';
   templateUrl: './products-list.component.html',
   styleUrls: ['./products-list.component.scss'],
 })
-export class ProductsListComponent implements OnInit {
+export class ProductsListComponent implements OnInit, OnDestroy {
   products: any[] = [];
   filteredProducts: any[] = [];
   categories: string[] = [];
@@ -29,8 +31,14 @@ export class ProductsListComponent implements OnInit {
   // Modals
   showRestock: boolean = false;
   showEdit: boolean = false;
+  showBarcodeScanner: boolean = false;
   selectedProduct: any = null;
   restockQuantity: number = 0;
+
+  // Barcode scanning
+  isScanning: boolean = false;
+  scanError: string = '';
+  private barcodeSubscription!: Subscription;
 
   // Edit form
   editProductForm: any = {
@@ -44,11 +52,31 @@ export class ProductsListComponent implements OnInit {
     supplier: '',
   };
 
-  constructor(private warungService: WarungService, private router: Router) {}
+  constructor(
+    private warungService: WarungService,
+    private router: Router,
+    private barcodeService: BarcodeService
+  ) {}
 
   ngOnInit() {
     this.loadProducts();
     this.loadCategories();
+    this.setupBarcodeListener();
+  }
+
+  ngOnDestroy() {
+    if (this.barcodeSubscription) {
+      this.barcodeSubscription.unsubscribe();
+    }
+    this.stopBarcodeScanner();
+  }
+
+  setupBarcodeListener() {
+    this.barcodeSubscription = this.barcodeService.getBarcodeResult().subscribe((barcode) => {
+      if (barcode) {
+        this.handleScannedBarcode(barcode);
+      }
+    });
   }
 
   loadProducts() {
@@ -100,6 +128,69 @@ export class ProductsListComponent implements OnInit {
 
       return matchesSearch && matchesCategory && matchesStock;
     });
+  }
+
+  // Barcode Scanning Methods
+  async startBarcodeScanner() {
+    try {
+      this.scanError = '';
+      this.showBarcodeScanner = true;
+
+      // Delay to ensure modal is rendered
+      setTimeout(async () => {
+        try {
+          await this.barcodeService.startScanner('barcode-scanner-container');
+          this.isScanning = true;
+        } catch (error) {
+          console.error('Scanner error:', error);
+          this.scanError = 'Gagal mengakses kamera. Pastikan Anda memberikan izin akses kamera.';
+          this.isScanning = false;
+        }
+      }, 300);
+    } catch (error) {
+      console.error('Scanner initialization error:', error);
+      this.scanError = 'Tidak dapat mengakses kamera. Periksa izin perangkat Anda.';
+      this.isScanning = false;
+    }
+  }
+
+  async stopBarcodeScanner() {
+    try {
+      await this.barcodeService.stopScanner();
+      this.isScanning = false;
+      this.showBarcodeScanner = false;
+      this.scanError = '';
+    } catch (error) {
+      console.error('Error stopping scanner:', error);
+    }
+  }
+
+  handleScannedBarcode(barcode: string) {
+    console.log('Barcode scanned:', barcode);
+
+    // Search for the product by barcode
+    this.searchTerm = barcode;
+    this.filterProducts();
+
+    // Close scanner after successful scan
+    this.stopBarcodeScanner();
+
+    // If no products found, show message
+    if (this.filteredProducts.length === 0) {
+      setTimeout(() => {
+        alert(
+          `Produk dengan barcode "${barcode}" tidak ditemukan. Anda dapat menambahkannya sebagai produk baru.`
+        );
+      }, 500);
+    }
+  }
+
+  manualBarcodeSearch() {
+    const barcode = prompt('Masukkan kode barcode:');
+    if (barcode && barcode.trim()) {
+      this.searchTerm = barcode.trim();
+      this.filterProducts();
+    }
   }
 
   getStockStatusClass(product: any): string {

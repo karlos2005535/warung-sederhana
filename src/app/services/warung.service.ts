@@ -220,6 +220,19 @@ export class WarungService {
     return this.sales;
   }
 
+  // Method baru untuk menghapus transaksi
+  removeSale(saleId: number): boolean {
+    const sales = this.getSales();
+    const index = sales.findIndex((sale) => sale.id === saleId);
+
+    if (index !== -1) {
+      sales.splice(index, 1);
+      localStorage.setItem('warung_sales', JSON.stringify(sales));
+      return true;
+    }
+    return false;
+  }
+
   returnStock(productId: number, quantity: number) {
     const product = this.products.find((p) => p.id === productId);
     if (product) {

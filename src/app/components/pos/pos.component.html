@@ -127,13 +127,22 @@
               </span>
             </div>
           </div>
-          <button
-            (click)="openCancelModal(transaction)"
-            class="btn-cancel"
-            title="Batalkan transaksi dan kembalikan uang"
-          >
-            ❌ Batalkan
-          </button>
+          <div class="transaction-actions">
+            <button
+              (click)="openCancelModal(transaction)"
+              class="btn-cancel"
+              title="Batalkan transaksi dan kembalikan uang"
+            >
+              💰 Batalkan & Refund
+            </button>
+            <button
+              (click)="removeTransaction(transaction)"
+              class="btn-remove-transaction"
+              title="Hapus transaksi dari daftar"
+            >
+              ❌ Hapus
+            </button>
+          </div>
         </div>
       </div>
 

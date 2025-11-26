@@ -9,14 +9,22 @@
 
   <!-- Filter dan Pencarian -->
   <div class="filters-section">
-    <div class="search-box">
-      <input
-        type="text"
-        placeholder="Cari produk atau barcode..."
-        [(ngModel)]="searchTerm"
-        (input)="filterProducts()"
-      />
-      <span class="search-icon">🔍</span>
+    <div class="search-container">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Cari produk atau barcode..."
+          [(ngModel)]="searchTerm"
+          (input)="filterProducts()"
+        />
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <!-- Barcode Scan Button -->
+      <div class="barcode-search-actions">
+        <button class="btn-scan" (click)="startBarcodeScanner()">📷 Scan Barcode</button>
+        <button class="btn-manual-barcode" (click)="manualBarcodeSearch()">🔢 Input Barcode</button>
+      </div>
     </div>
 
     <div class="filter-controls">
@@ -71,7 +79,10 @@
       <div class="empty-icon">📦</div>
       <h4>Tidak ada produk yang ditemukan</h4>
       <p>Coba ubah filter pencarian atau tambahkan produk baru</p>
-      <button class="btn-primary" (click)="goToAddProduct()">➕ Tambah Produk Pertama</button>
+      <div class="empty-state-actions">
+        <button class="btn-primary" (click)="goToAddProduct()">➕ Tambah Produk Pertama</button>
+        <button class="btn-secondary" (click)="startBarcodeScanner()">📷 Scan Barcode</button>
+      </div>
     </div>
 
     <div class="products-grid" *ngIf="filteredProducts.length > 0">
@@ -137,6 +148,38 @@
     </div>
   </div>
 
+  <!-- Modal Scanner Barcode -->
+  <div *ngIf="showBarcodeScanner" class="modal-overlay">
+    <div class="modal-content scanner-modal">
+      <h3>📷 Scan Barcode Produk</h3>
+
+      <div class="scanner-container">
+        <div id="barcode-scanner-container" class="scanner-viewport">
+          <div *ngIf="!isScanning" class="scanner-placeholder">
+            <div class="scanner-loading">🔄 Memuat kamera...</div>
+          </div>
+        </div>
+
+        <div class="scanner-guide">
+          <div class="scan-frame"></div>
+          <p class="scan-instruction">Arahkan kamera ke barcode produk</p>
+        </div>
+      </div>
+
+      <div *ngIf="scanError" class="scanner-error">
+        <span class="error-icon">⚠️</span>
+        {{ scanError }}
+      </div>
+
+      <div class="scanner-actions">
+        <button class="btn-cancel" (click)="stopBarcodeScanner()">✕ Tutup Scanner</button>
+        <button class="btn-manual" (click)="manualBarcodeSearch(); stopBarcodeScanner()">
+          🔢 Input Manual
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Restock -->
   <div *ngIf="showRestock" class="modal-overlay">
     <div class="modal-content">
@@ -183,12 +226,15 @@
 
       <div class="form-group">
         <label>Barcode *</label>
-        <input
-          type="text"
-          [(ngModel)]="editProductForm.barcode"
-          placeholder="Kode barcode"
-          class="form-input"
-        />
+        <div class="barcode-input-group">
+          <input
+            type="text"
+            [(ngModel)]="editProductForm.barcode"
+            placeholder="Kode barcode"
+            class="form-input"
+          />
+          <button class="btn-scan-small" (click)="startBarcodeScanner()" type="button">📷</button>
+        </div>
       </div>
 
       <div class="form-row">

@@ -501,8 +501,16 @@
   }
 }
 
+.transaction-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  min-width: 120px;
+}
+
 .btn-cancel {
-  padding: 8px 15px;
+  padding: 8px 12px;
   background: #dc3545;
   color: white;
   border: none;
@@ -511,9 +519,28 @@
   font-weight: bold;
   transition: all 0.3s;
   white-space: nowrap;
+  font-size: 0.85rem;
 
   &:hover {
     background: #c82333;
+    transform: scale(1.05);
+  }
+}
+
+.btn-remove-transaction {
+  padding: 6px 10px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transition: all 0.3s;
+  white-space: nowrap;
+
+  &:hover {
+    background: #5a6268;
     transform: scale(1.05);
   }
 }
@@ -866,8 +893,16 @@
     gap: 15px;
   }
 
-  .btn-cancel {
+  .transaction-actions {
+    flex-direction: row;
     width: 100%;
+    justify-content: space-between;
+  }
+
+  .btn-cancel,
+  .btn-remove-transaction {
+    flex: 1;
+    text-align: center;
   }
 
   .modal-actions {
