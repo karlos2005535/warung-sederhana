@@ -97,42 +97,74 @@
           </button>
         </div>
       </div>
+
+      <!-- Riwayat Pengembalian Uang -->
+      <div *ngIf="refundHistory.length > 0" class="refund-history">
+        <h4>💸 Riwayat Pengembalian Uang</h4>
+        <div *ngFor="let refund of refundHistory" class="refund-item">
+          <div class="refund-info">
+            <strong>Refund ID: {{ refund.id }}</strong>
+            <p>Transaksi ID: {{ refund.saleId }}</p>
+            <p>Jumlah: Rp {{ refund.refundAmount.toLocaleString('id-ID') }}</p>
+            <p>Alasan: {{ refund.reason }}</p>
+            <small>{{ refund.refundDate | date : 'dd/MM/yyyy HH:mm' }}</small>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Modal Pembatalan -->
   <div *ngIf="showCancelModal" class="modal-overlay">
     <div class="modal-content">
-      <h3>Konfirmasi Pembatalan Transaksi</h3>
+      <h3>💰 Konfirmasi Pembatalan & Pengembalian Uang</h3>
 
       <div *ngIf="selectedTransaction" class="cancel-details">
-        <p><strong>ID Transaksi:</strong> {{ selectedTransaction.id }}</p>
-        <p><strong>Tanggal:</strong> {{ selectedTransaction.date | date : 'dd/MM/yyyy HH:mm' }}</p>
-        <p>
-          <strong>Total Transaksi:</strong> Rp
-          {{ selectedTransaction.total.toLocaleString('id-ID') }}
-        </p>
-        <p>
-          <strong>Uang Diterima:</strong> Rp
-          {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}
-        </p>
-        <p>
-          <strong>Uang yang akan dikembalikan:</strong> Rp
-          {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}
-        </p>
+        <div class="detail-section">
+          <h4>Detail Transaksi</h4>
+          <p><strong>ID Transaksi:</strong> {{ selectedTransaction.id }}</p>
+          <p>
+            <strong>Tanggal:</strong> {{ selectedTransaction.date | date : 'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p>
+            <strong>Total Transaksi:</strong> Rp
+            {{ selectedTransaction.total.toLocaleString('id-ID') }}
+          </p>
+          <p>
+            <strong>Uang Diterima:</strong> Rp
+            {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}
+          </p>
+        </div>
+
+        <div class="refund-section">
+          <h4>💰 Detail Pengembalian Uang</h4>
+          <p>
+            <strong>Uang yang akan dikembalikan:</strong> Rp
+            {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}
+          </p>
+          <p><strong>Metode Pengembalian:</strong> Tunai</p>
+          <p><strong>Status:</strong> Akan diproses</p>
+        </div>
 
         <div class="cancel-items">
-          <h4>Barang yang akan dikembalikan ke stok:</h4>
+          <h4>🔄 Barang yang akan dikembalikan ke stok:</h4>
           <div *ngFor="let item of selectedTransaction.items" class="cancel-item">
             <span>{{ item.name }}</span>
             <span>{{ item.quantity }} x Rp {{ item.price.toLocaleString('id-ID') }}</span>
           </div>
         </div>
+
+        <div class="warning-message">
+          ⚠️ <strong>Perhatian:</strong> Tindakan ini tidak dapat dibatalkan. Uang akan dikembalikan
+          ke pelanggan dan stok barang akan ditambahkan kembali.
+        </div>
       </div>
 
       <div class="modal-actions">
         <button (click)="closeCancelModal()" class="btn-secondary">Batal</button>
-        <button (click)="cancelTransaction()" class="btn-danger">Ya, Batalkan Transaksi</button>
+        <button (click)="cancelTransaction()" class="btn-danger">
+          💰 Ya, Batalkan & Kembalikan Uang
+        </button>
       </div>
     </div>
   </div>

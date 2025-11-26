@@ -19,12 +19,14 @@ export class PosComponent {
   recentTransactions: any[] = [];
   showCancelModal: boolean = false;
   selectedTransaction: any = null;
+  refundHistory: any[] = [];
 
   constructor(private warungService: WarungService, private router: Router) {}
 
   ngOnInit() {
     this.products = this.warungService.getProducts();
     this.loadRecentTransactions();
+    this.loadRefundHistory();
   }
 
   addToCart(product: any) {
@@ -69,12 +71,10 @@ export class PosComponent {
 
   processPayment() {
     if (this.cash >= this.getTotal()) {
-      // Update stock untuk setiap item di cart
       this.cart.forEach((item) => {
         this.warungService.updateStock(item.id, item.quantity);
       });
 
-      // Tambahkan transaksi baru
       const newTransaction = {
         id: Date.now(),
         date: new Date(),
@@ -96,7 +96,7 @@ export class PosComponent {
 
       this.cart = [];
       this.cash = 0;
-      this.products = this.warungService.getProducts(); // Refresh products
+      this.products = this.warungService.getProducts();
     }
   }
 
@@ -106,6 +106,10 @@ export class PosComponent {
       .filter((sale) => sale.status === 'completed')
       .slice(-5)
       .reverse();
+  }
+
+  loadRefundHistory() {
+    this.refundHistory = this.warungService.getRefunds().slice(-3).reverse();
   }
 
   openCancelModal(transaction: any) {
@@ -120,23 +124,28 @@ export class PosComponent {
 
   cancelTransaction() {
     if (this.selectedTransaction) {
-      // Kembalikan stok produk
-      this.selectedTransaction.items.forEach((item: any) => {
-        this.warungService.returnStock(item.id, item.quantity);
-      });
+      const success = this.warungService.cancelSale(this.selectedTransaction.id);
 
-      // Tandai transaksi sebagai dibatalkan
-      this.warungService.cancelSale(this.selectedTransaction.id);
+      if (success) {
+        const refunds = this.warungService.getRefunds();
+        const latestRefund = refunds[refunds.length - 1];
 
-      alert(
-        `Transaksi berhasil dibatalkan!\nUang dikembalikan: Rp ${this.selectedTransaction.cashReceived.toLocaleString(
-          'id-ID'
-        )}`
-      );
+        alert(
+          `🔄 TRANSAKSI DIBATALKAN!\n\n` +
+            `ID Transaksi: ${this.selectedTransaction.id}\n` +
+            `Total Pembelian: Rp ${this.selectedTransaction.total.toLocaleString('id-ID')}\n` +
+            `Uang Dikembalikan: Rp ${this.selectedTransaction.cashReceived.toLocaleString(
+              'id-ID'
+            )}\n` +
+            `ID Refund: ${latestRefund.id}\n` +
+            `Tanggal: ${new Date(latestRefund.refundDate).toLocaleString('id-ID')}`
+        );
 
-      this.closeCancelModal();
-      this.loadRecentTransactions();
-      this.products = this.warungService.getProducts(); // Refresh products
+        this.closeCancelModal();
+        this.loadRecentTransactions();
+        this.loadRefundHistory();
+        this.products = this.warungService.getProducts();
+      }
     }
   }
 
