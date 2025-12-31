@@ -1,265 +1,245 @@
 <div class="pos-container">
   <div class="pos-header">
-    <h2>💳 POS Kasir - Sistem Pengembalian Uang</h2>
+    <h2>
+      <span class="icon">💳</span>
+      <div class="title-text">
+        POS Kasir
+        <span style="font-size: 0.8rem; display: block; color: #64748b; font-weight: 400"
+          >Sistem Pembayaran & Refund</span
+        >
+      </div>
+    </h2>
     <div class="header-actions">
       <button class="btn-refund-history" (click)="toggleRefundHistory()">
-        📋 Riwayat Pengembalian
+        <span>📋</span> Riwayat Refund
       </button>
-      <button class="btn-back" (click)="goBack()">⬅ Kembali ke Dashboard</button>
+      <button class="btn-back" (click)="goBack()"><span>⬅</span> Dashboard</button>
     </div>
   </div>
 
-  <div class="pos-content">
-    <!-- Daftar Produk -->
-    <div class="products-section">
-      <h3>🛍️ Daftar Produk Tersedia</h3>
-      <div class="products-grid">
-        <div
-          *ngFor="let product of products"
-          class="product-card"
-          [class.out-of-stock]="product.stock === 0"
-        >
-          <div class="product-info">
-            <strong>{{ product.name }}</strong>
-            <p class="price">Rp {{ product.price.toLocaleString('id-ID') }}</p>
-            <small class="stock">Stok: {{ product.stock }} | {{ product.category }}</small>
-          </div>
-          <button (click)="addToCart(product)" [disabled]="product.stock === 0" class="btn-add">
-            {{ product.stock === 0 ? '❌ Habis' : '➕ Tambah' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Keranjang & Transaksi -->
-    <div class="cart-section">
-      <!-- Keranjang Belanja -->
-      <div class="cart-container">
-        <h3>🛒 Keranjang Belanja</h3>
-
-        <div *ngIf="cart.length === 0" class="empty-cart">
-          <p>😴 Keranjang belanja kosong</p>
-          <small>Pilih produk dari daftar untuk mulai berbelanja</small>
-        </div>
-
-        <div *ngFor="let item of cart; let i = index" class="cart-item">
-          <div class="item-info">
-            <strong>{{ item.name }}</strong>
-            <p>Rp {{ item.price.toLocaleString('id-ID') }} x {{ item.quantity }}</p>
-            <strong class="item-total">
-              Total: Rp {{ (item.price * item.quantity).toLocaleString('id-ID') }}
-            </strong>
-          </div>
-          <div class="item-actions">
-            <button (click)="decreaseQuantity(item)" class="btn-quantity">−</button>
-            <span class="quantity">{{ item.quantity }}</span>
-            <button (click)="increaseQuantity(item)" class="btn-quantity">+</button>
-            <button (click)="removeFromCart(item)" class="btn-remove" title="Hapus dari keranjang">
-              🗑️
+  <div class="pos-layout">
+    <div class="left-panel">
+      <div class="products-section">
+        <h3>🛍️ Produk Tersedia</h3>
+        <div class="products-grid">
+          <div
+            *ngFor="let product of products"
+            class="product-card"
+            [class.out-of-stock]="product.stock === 0"
+          >
+            <div class="product-info">
+              <strong>{{ product.name }}</strong>
+              <div class="price">Rp {{ product.price.toLocaleString('id-ID') }}</div>
+              <small class="stock">
+                <span [style.color]="product.stock < 5 ? '#ef4444' : '#64748b'">
+                  Stok: {{ product.stock }}
+                </span>
+                • {{ product.category }}
+              </small>
+            </div>
+            <button (click)="addToCart(product)" [disabled]="product.stock === 0" class="btn-add">
+              {{ product.stock === 0 ? 'Habis' : '+ Tambah' }}
             </button>
           </div>
         </div>
-
-        <!-- Pembayaran -->
-        <div *ngIf="cart.length > 0" class="payment-section">
-          <h4>💵 Pembayaran</h4>
-
-          <div class="total-section">
-            <label>Total Belanja:</label>
-            <div class="total-amount">Rp {{ getTotal().toLocaleString('id-ID') }}</div>
-          </div>
-
-          <div class="cash-input">
-            <label>Uang Bayar (Cash):</label>
-            <input
-              type="number"
-              [(ngModel)]="cash"
-              placeholder="Masukkan jumlah uang"
-              class="form-input"
-              min="0"
-            />
-          </div>
-
-          <div *ngIf="cash > 0" class="change-section">
-            <label>Kembalian:</label>
-            <div [class]="getChange() < 0 ? 'change-negative' : 'change-positive'">
-              Rp {{ getChange().toLocaleString('id-ID') }}
-              <span *ngIf="getChange() < 0" class="warning">(Uang kurang!)</span>
-            </div>
-          </div>
-
-          <button
-            (click)="processPayment()"
-            [disabled]="cash < getTotal() || getTotal() === 0"
-            class="btn-pay"
-          >
-            💰 Proses Pembayaran
-          </button>
-        </div>
       </div>
 
-      <!-- Transaksi Terakhir untuk Pembatalan -->
       <div class="transactions-container">
-        <h3>📋 Transaksi Terakhir (Dapat Dibatalkan)</h3>
+        <h3>📋 Transaksi Terakhir (Aktif)</h3>
 
-        <div *ngIf="recentTransactions.length === 0" class="no-transactions">
-          <p>📝 Belum ada transaksi</p>
-          <small>Transaksi yang sudah diproses akan muncul di sini</small>
+        <div
+          *ngIf="recentTransactions.length === 0"
+          class="no-transactions"
+          style="text-align: center; color: #94a3b8; padding: 20px"
+        >
+          <p>Belum ada transaksi hari ini.</p>
         </div>
 
         <div *ngFor="let transaction of recentTransactions" class="transaction-item">
           <div class="transaction-info">
             <div class="transaction-header">
-              <strong>ID: {{ transaction.id }}</strong>
-              <span class="transaction-time">{{ transaction.date | date : 'dd/MM/yy HH:mm' }}</span>
+              <strong>#{{ transaction.id }}</strong>
+              <span>• {{ transaction.date | date : 'HH:mm' }}</span>
             </div>
             <div class="transaction-details">
-              <p><strong>Total:</strong> Rp {{ transaction.total.toLocaleString('id-ID') }}</p>
               <p>
-                <strong>Bayar:</strong> Rp {{ transaction.cashReceived.toLocaleString('id-ID') }}
+                Total: <strong>Rp {{ transaction.total.toLocaleString('id-ID') }}</strong>
               </p>
-              <p><strong>Kembali:</strong> Rp {{ transaction.change.toLocaleString('id-ID') }}</p>
-            </div>
-            <div class="transaction-items">
-              <strong>Barang:</strong>
-              <span *ngFor="let item of transaction.items" class="item-badge">
-                {{ item.name }} ({{ item.quantity }})
-              </span>
+              <p style="font-size: 0.8rem; color: #64748b">({{ transaction.items.length }} Item)</p>
             </div>
           </div>
           <div class="transaction-actions">
-            <button
-              (click)="openCancelModal(transaction)"
-              class="btn-cancel"
-              title="Batalkan transaksi dan kembalikan uang"
-            >
-              💰 Batalkan & Refund
+            <button (click)="openCancelModal(transaction)" class="btn-cancel" title="Refund">
+              🔄 Refund
             </button>
             <button
               (click)="removeTransaction(transaction)"
               class="btn-remove-transaction"
-              title="Hapus transaksi dari daftar"
+              title="Hapus tampilan"
             >
-              ❌ Hapus
+              ✕
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Riwayat Pengembalian Uang -->
       <div *ngIf="showRefundHistory" class="refund-history-section">
-        <h4>💸 Riwayat Pengembalian Uang</h4>
-        <div class="refund-summary">
-          <strong>Total Pengembalian: Rp {{ getRefundTotal().toLocaleString('id-ID') }}</strong>
+        <h4>💸 Log Pengembalian Dana</h4>
+        <div style="margin-bottom: 15px; font-weight: bold; color: #4f46e5">
+          Total Refund: Rp {{ getRefundTotal().toLocaleString('id-ID') }}
         </div>
 
-        <div *ngIf="refundHistory.length === 0" class="no-refunds">
-          <p>🔄 Belum ada pengembalian uang</p>
-        </div>
-
-        <div *ngFor="let refund of refundHistory" class="refund-item">
-          <div class="refund-info">
-            <div class="refund-header">
-              <strong>Refund ID: {{ refund.id }}</strong>
-              <span class="refund-time">{{ refund.refundDate | date : 'dd/MM/yy HH:mm' }}</span>
+        <div *ngFor="let refund of refundHistory" class="transaction-item">
+          <div class="transaction-info">
+            <strong>ID: {{ refund.id }}</strong>
+            <div style="color: #ef4444; font-weight: bold">
+              - Rp {{ refund.refundAmount.toLocaleString('id-ID') }}
             </div>
-            <p><strong>Transaksi ID:</strong> {{ refund.saleId }}</p>
-            <p>
-              <strong>Jumlah Dikembalikan:</strong> Rp
-              {{ refund.refundAmount.toLocaleString('id-ID') }}
-            </p>
-            <p><strong>Alasan:</strong> {{ refund.reason }}</p>
-            <p><strong>Diproses oleh:</strong> {{ refund.processedBy }}</p>
+            <small>{{ refund.reason }} • {{ refund.refundDate | date : 'dd/MM HH:mm' }}</small>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="cart-container">
+        <h3>
+          <span>🛒</span> Keranjang Belanja
+          <span *ngIf="cart.length > 0" style="margin-left: auto; font-size: 0.8em; opacity: 0.8"
+            >{{ cart.length }} Item</span
+          >
+        </h3>
+
+        <div class="cart-items-scroll">
+          <div *ngIf="cart.length === 0" class="empty-cart">
+            <div style="font-size: 3rem; margin-bottom: 10px">🧾</div>
+            <p>Keranjang Kosong</p>
+            <small>Pilih produk di sebelah kiri</small>
+          </div>
+
+          <div *ngFor="let item of cart" class="cart-item">
+            <div class="item-info">
+              <strong>{{ item.name }}</strong>
+              <p>@ Rp {{ item.price.toLocaleString('id-ID') }}</p>
+              <strong class="item-total"
+                >Rp {{ (item.price * item.quantity).toLocaleString('id-ID') }}</strong
+              >
+            </div>
+            <div class="item-actions">
+              <button (click)="decreaseQuantity(item)" class="btn-quantity">−</button>
+              <span class="quantity">{{ item.quantity }}</span>
+              <button (click)="increaseQuantity(item)" class="btn-quantity">+</button>
+              <button (click)="removeFromCart(item)" class="btn-remove" title="Hapus">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="payment-section">
+          <div class="total-section">
+            <label>Total Tagihan</label>
+            <div class="total-amount">Rp {{ getTotal().toLocaleString('id-ID') }}</div>
+          </div>
+
+          <div class="cash-input" *ngIf="cart.length > 0">
+            <label>Uang Tunai Diterima</label>
+            <div class="cash-input-container">
+              <span class="currency-prefix">Rp</span>
+              <input
+                type="text"
+                [(ngModel)]="cashFormatted"
+                (input)="onCashInput($event)"
+                (blur)="onCashBlur()"
+                (focus)="onCashFocus()"
+                placeholder="0"
+                class="form-input cash-input-field"
+                [class.input-error]="getChange() < 0"
+              />
+            </div>
+          </div>
+
+          <div *ngIf="cash > 0 && cart.length > 0" class="change-section">
+            <label>Kembalian</label>
+            <div [class]="getChange() < 0 ? 'change-negative' : 'change-positive'">
+              Rp {{ getChange().toLocaleString('id-ID') }}
+            </div>
+          </div>
+          <small
+            *ngIf="getChange() < 0 && cash > 0"
+            style="color: #ef4444; display: block; margin-top: 5px"
+            >⚠️ Uang tunai kurang!</small
+          >
+
+          <button
+            (click)="processPayment()"
+            [disabled]="cart.length === 0 || cash < getTotal()"
+            class="btn-pay"
+          >
+            Bayar Sekarang ➔
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal Konfirmasi Pembatalan -->
   <div *ngIf="showCancelModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>💰 Konfirmasi Pembatalan & Pengembalian Uang</h3>
+        <h3>Konfirmasi Refund</h3>
         <button (click)="closeCancelModal()" class="btn-close">×</button>
       </div>
 
       <div *ngIf="selectedTransaction" class="cancel-details">
-        <!-- Detail Transaksi -->
-        <div class="detail-section">
-          <h4>📄 Detail Transaksi</h4>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>ID Transaksi:</label>
-              <span>{{ selectedTransaction.id }}</span>
-            </div>
-            <div class="detail-item">
-              <label>Tanggal:</label>
-              <span>{{ selectedTransaction.date | date : 'dd/MM/yyyy HH:mm' }}</span>
-            </div>
-            <div class="detail-item">
-              <label>Total Transaksi:</label>
-              <span>Rp {{ selectedTransaction.total.toLocaleString('id-ID') }}</span>
-            </div>
-            <div class="detail-item">
-              <label>Uang Diterima:</label>
-              <span>Rp {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}</span>
+        <div class="detail-grid">
+          <div>
+            <small style="color: #64748b">ID Transaksi</small>
+            <div style="font-weight: bold">{{ selectedTransaction.id }}</div>
+          </div>
+          <div>
+            <small style="color: #64748b">Waktu</small>
+            <div style="font-weight: bold">
+              {{ selectedTransaction.date | date : 'dd/MM/yy HH:mm' }}
             </div>
           </div>
         </div>
 
-        <!-- Detail Pengembalian Uang -->
-        <div class="refund-section">
-          <h4>💵 Detail Pengembalian Uang</h4>
-          <div class="refund-details">
-            <div class="refund-item">
-              <label>Uang yang akan dikembalikan:</label>
-              <span class="refund-amount"
-                >Rp {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}</span
-              >
-            </div>
-            <div class="refund-item">
-              <label>Metode Pengembalian:</label>
-              <span>Tunai</span>
-            </div>
-            <div class="refund-item">
-              <label>Status:</label>
-              <span class="status-pending">Akan diproses</span>
-            </div>
+        <div class="refund-section" style="text-align: center; margin: 20px 0">
+          <label style="color: #64748b">Total Uang Dikembalikan</label>
+          <div style="font-size: 2rem; font-weight: 800; color: #ef4444">
+            Rp {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}
+          </div>
+          <small style="background: #fee2e2; color: #b91c1c; padding: 4px 8px; border-radius: 4px"
+            >Metode: Tunai</small
+          >
+        </div>
+
+        <div class="cancel-items" style="background: #f8fafc; padding: 15px; border-radius: 8px">
+          <h4 style="margin-top: 0; font-size: 0.9rem">Barang kembali ke stok:</h4>
+          <div
+            *ngFor="let item of selectedTransaction.items"
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 5px;
+              font-size: 0.9rem;
+            "
+          >
+            <span>{{ item.quantity }}x {{ item.name }}</span>
+            <span>Rp {{ (item.price * item.quantity).toLocaleString('id-ID') }}</span>
           </div>
         </div>
 
-        <!-- Barang yang Dikembalikan -->
-        <div class="cancel-items">
-          <h4>🔄 Barang yang akan dikembalikan ke stok:</h4>
-          <div *ngFor="let item of selectedTransaction.items" class="cancel-item">
-            <span class="item-name">{{ item.name }}</span>
-            <span class="item-quantity"
-              >{{ item.quantity }} x Rp {{ item.price.toLocaleString('id-ID') }}</span
-            >
-            <span class="item-total"
-              >Rp {{ (item.price * item.quantity).toLocaleString('id-ID') }}</span
-            >
-          </div>
-        </div>
-
-        <!-- Peringatan -->
         <div class="warning-message">
           <div class="warning-icon">⚠️</div>
           <div class="warning-text">
-            <strong>Perhatian Penting:</strong>
-            Tindakan ini tidak dapat dibatalkan. Uang tunai sebesar
-            <strong>Rp {{ selectedTransaction.cashReceived.toLocaleString('id-ID') }}</strong>
-            akan dikembalikan ke pelanggan dan stok barang akan ditambahkan kembali ke inventory.
+            <strong>Perhatian:</strong> Transaksi akan dibatalkan permanen. Stok akan otomatis
+            bertambah kembali.
           </div>
         </div>
       </div>
 
       <div class="modal-actions">
-        <button (click)="closeCancelModal()" class="btn-secondary">❌ Batal</button>
-        <button (click)="cancelTransaction()" class="btn-danger">
-          💰 Ya, Batalkan & Kembalikan Uang
-        </button>
+        <button (click)="closeCancelModal()" class="btn-secondary">Batal</button>
+        <button (click)="cancelTransaction()" class="btn-danger">Proses Refund</button>
       </div>
     </div>
   </div>

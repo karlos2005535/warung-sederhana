@@ -18,6 +18,22 @@ export class RegisterComponent {
 
   constructor(private router: Router, private authService: AuthService) {}
 
+  // Method yang diperlukan oleh template
+  onPasswordInput() {
+    // Method ini dipanggil ketika password diinput
+    console.log('Password input changed');
+  }
+
+  isFormValid(): boolean {
+    return (
+      this.username.trim() !== '' &&
+      this.password.trim() !== '' &&
+      this.confirmPassword.trim() !== '' &&
+      this.password === this.confirmPassword &&
+      this.password.length >= 3
+    );
+  }
+
   register(event?: Event) {
     if (event) {
       event.preventDefault();
@@ -68,7 +84,7 @@ export class RegisterComponent {
   }
 
   getPasswordMatchText(): string {
-    if (!this.confirmPassword) return 'Please confirm your password';
-    return this.password === this.confirmPassword ? 'Passwords match' : 'Passwords do not match';
+    if (!this.confirmPassword) return 'Harap konfirmasi password Anda';
+    return this.password === this.confirmPassword ? 'Password cocok' : 'Password tidak cocok';
   }
 }

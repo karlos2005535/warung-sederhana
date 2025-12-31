@@ -1,4 +1,3 @@
-// dashboard.component.ts (tidak ada perubahan signifikan pada logic)
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -19,43 +18,29 @@ export class DashboardComponent implements OnInit {
   currentDate: Date = new Date();
   stockFilter: string = 'all';
 
+  // Icon diganti dengan string emoji, tapi nanti di CSS kita buat jadi cantik
   menuItems = [
     {
       title: 'Tambah Barang',
-      description: 'Tambah produk baru dengan scan barcode',
+      description: 'Input produk & scan barcode',
       icon: '📦',
       route: '/products',
     },
     {
       title: 'Daftar Barang',
-      description: 'Lihat dan kelola semua produk',
+      description: 'Cek stok dan harga',
       icon: '📋',
       route: '/products-list',
     },
-    {
-      title: 'POS Kasir',
-      description: 'Lakukan transaksi penjualan',
-      icon: '💰',
-      route: '/pos',
-    },
-    {
-      title: 'Kelola Piutang',
-      description: 'Kelola piutang pelanggan',
-      icon: '📝',
-      route: '/debts',
-    },
+    { title: 'POS Kasir', description: 'Transaksi penjualan', icon: '🖥️', route: '/pos' },
+    { title: 'Kelola Piutang', description: 'Catatan bon pelanggan', icon: '📒', route: '/debts' },
     {
       title: 'Kelola Kategori',
-      description: 'Kelola kategori produk',
+      description: 'Atur kategori produk',
       icon: '🏷️',
       route: '/categories',
     },
-    {
-      title: 'Laporan',
-      description: 'Lihat laporan penjualan dan stok',
-      icon: '📊',
-      route: '/reports',
-    },
+    { title: 'Laporan', description: 'Analisa penjualan', icon: '📊', route: '/reports' },
   ];
 
   salesReport = {
@@ -137,11 +122,11 @@ export class DashboardComponent implements OnInit {
   getStockText(stock: number, minStock: number = 5): string {
     if (stock === 0) return 'Habis';
     if (stock <= minStock) return 'Rendah';
-    return 'Normal';
+    return 'Aman';
   }
 
   getSalesGrowth(): number {
-    return 12;
+    return 12; // Dummy data sesuai aslinya
   }
 
   getDaysInMonth(): number {
@@ -183,7 +168,6 @@ export class DashboardComponent implements OnInit {
 
   refreshData() {
     this.loadDashboardData();
-    alert('Data dashboard telah diperbarui!');
   }
 
   toggleMenu() {

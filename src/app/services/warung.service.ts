@@ -1,303 +1,232 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+export interface Product {
+  id: number;
+  barcode: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  minStock: number;
+  supplier: string;
+  createdAt: Date;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+}
+
+export interface Sale {
+  id: number;
+  items: any[];
+  total: number;
+  date: Date;
+  status: string;
+}
+
+export interface Debt {
+  id: number;
+  customerName: string;
+  amount: number;
+  date: Date;
+  dueDate: Date;
+  status: string;
+  description?: string;
+}
+
+export interface Refund {
+  id: number;
+  saleId: number;
+  items: any[];
+  total: number;
+  refundDate: Date;
+  reason: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class WarungService {
-  private products: any[] = [];
-  private categories: any[] = [];
-  private debts: any[] = [];
-  private sales: any[] = [];
-  private refunds: any[] = [];
+  private products: Product[] = [
+    {
+      id: 1,
+      barcode: '8996001600647',
+      name: 'Indomie Goreng',
+      category: 'Makanan Instan',
+      price: 2500,
+      stock: 50,
+      minStock: 10,
+      supplier: 'PT Indofood',
+      createdAt: new Date(),
+    },
+    {
+      id: 2,
+      barcode: '8998866603196',
+      name: 'Aqua 600ml',
+      category: 'Minuman',
+      price: 3000,
+      stock: 100,
+      minStock: 20,
+      supplier: 'PT Aqua',
+      createdAt: new Date(),
+    },
+  ];
 
-  constructor() {
-    this.loadFromLocalStorage();
-    this.initializeDefaultData();
-  }
+  private categories: Category[] = [
+    { id: 1, name: 'Makanan Instan' },
+    { id: 2, name: 'Minuman' },
+    { id: 3, name: 'Snack' },
+    { id: 4, name: 'Bahan Pokok' },
+  ];
 
-  private initializeDefaultData() {
-    if (this.products.length === 0) {
-      this.products = [
-        {
-          id: 1,
-          name: 'Indomie Goreng',
-          price: 2500,
-          stock: 50,
-          category: 'Makanan Instan',
-          barcode: '8996001600647',
-          minStock: 5,
-          supplier: 'PT Indofood',
-          createdAt: new Date(),
-        },
-        {
-          id: 2,
-          name: 'Aqua 600ml',
-          price: 3000,
-          stock: 100,
-          category: 'Minuman',
-          barcode: '8998866603196',
-          minStock: 10,
-          supplier: 'PT Aqua Golden Mississippi',
-          createdAt: new Date(),
-        },
-        {
-          id: 3,
-          name: 'Chitato',
-          price: 12000,
-          stock: 25,
-          category: 'Snack',
-          barcode: '8999999533448',
-          minStock: 5,
-          supplier: 'PT Indofood',
-          createdAt: new Date(),
-        },
-        {
-          id: 4,
-          name: 'Beras Ramos 5kg',
-          price: 65000,
-          stock: 15,
-          category: 'Bahan Pokok',
-          barcode: '8996001300159',
-          minStock: 3,
-          supplier: 'PT Beras Ramos',
-          createdAt: new Date(),
-        },
-        {
-          id: 5,
-          name: 'Minyak Goreng Bimoli 2L',
-          price: 32000,
-          stock: 8,
-          category: 'Bahan Pokok',
-          barcode: '8991002101740',
-          minStock: 5,
-          supplier: 'PT Salim Ivomas',
-          createdAt: new Date(),
-        },
-      ];
-      this.saveToLocalStorage();
-    }
+  private sales: Sale[] = [
+    {
+      id: 1,
+      items: [{ id: 1, name: 'Indomie Goreng', price: 2500, quantity: 2 }],
+      total: 5000,
+      date: new Date(),
+      status: 'completed',
+    },
+  ];
 
-    if (this.categories.length === 0) {
-      this.categories = [
-        { id: 1, name: 'Makanan Instan' },
-        { id: 2, name: 'Minuman' },
-        { id: 3, name: 'Snack' },
-        { id: 4, name: 'Bahan Pokok' },
-        { id: 5, name: 'Kebutuhan Rumah Tangga' },
-        { id: 6, name: 'Personal Care' },
-        { id: 7, name: 'Lainnya' },
-      ];
-      this.saveToLocalStorage();
-    }
-  }
+  private debts: Debt[] = [
+    {
+      id: 1,
+      customerName: 'Budi Santoso',
+      amount: 50000,
+      date: new Date(),
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      status: 'active',
+      description: 'Belanja bulanan',
+    },
+  ];
 
-  private saveToLocalStorage(): void {
-    localStorage.setItem('warung_products', JSON.stringify(this.products));
-    localStorage.setItem('warung_categories', JSON.stringify(this.categories));
-    localStorage.setItem('warung_debts', JSON.stringify(this.debts));
-    localStorage.setItem('warung_sales', JSON.stringify(this.sales));
-    localStorage.setItem('warung_refunds', JSON.stringify(this.refunds));
-  }
+  private refunds: Refund[] = [];
 
-  private loadFromLocalStorage(): void {
-    try {
-      const productsData = localStorage.getItem('warung_products');
-      const categoriesData = localStorage.getItem('warung_categories');
-      const debtsData = localStorage.getItem('warung_debts');
-      const salesData = localStorage.getItem('warung_sales');
-      const refundsData = localStorage.getItem('warung_refunds');
+  private productsSubject = new BehaviorSubject<Product[]>(this.products);
+  private categoriesSubject = new BehaviorSubject<Category[]>(this.categories);
+  private salesSubject = new BehaviorSubject<Sale[]>(this.sales);
+  private debtsSubject = new BehaviorSubject<Debt[]>(this.debts);
 
-      if (productsData) this.products = JSON.parse(productsData);
-      if (categoriesData) this.categories = JSON.parse(categoriesData);
-      if (debtsData) this.debts = JSON.parse(debtsData);
-      if (salesData) this.sales = JSON.parse(salesData);
-      if (refundsData) this.refunds = JSON.parse(refundsData);
-    } catch (error) {
-      console.error('Error loading data from localStorage:', error);
-      this.products = [];
-      this.categories = [];
-      this.debts = [];
-      this.sales = [];
-      this.refunds = [];
-    }
-  }
-
-  // PRODUCT METHODS
-  getProducts(): any[] {
+  // Product Methods
+  getProducts(): Product[] {
     return this.products;
   }
 
-  getProductByBarcode(barcode: string): any {
-    return this.products.find((p) => p.barcode === barcode);
+  getCategories() {
+    return this.categories;
   }
 
-  getProductById(id: number): any {
-    return this.products.find((p) => p.id === id);
-  }
-
-  addProduct(product: any): boolean {
-    if (this.getProductByBarcode(product.barcode)) {
+  addProduct(product: Omit<Product, 'id' | 'createdAt'>): boolean {
+    const existingProduct = this.products.find((p) => p.barcode === product.barcode);
+    if (existingProduct) {
       return false;
     }
 
-    const newProduct = {
-      id: Date.now(),
+    const newProduct: Product = {
       ...product,
+      id: this.generateId(),
       createdAt: new Date(),
     };
 
     this.products.push(newProduct);
-    this.saveToLocalStorage();
+    this.productsSubject.next([...this.products]);
     return true;
   }
 
-  updateProduct(productId: number, updatedProduct: any): boolean {
-    const index = this.products.findIndex((p) => p.id === productId);
+  updateProduct(id: number, updatedProduct: Partial<Product>): boolean {
+    const index = this.products.findIndex((p) => p.id === id);
     if (index !== -1) {
-      if (updatedProduct.barcode && updatedProduct.barcode !== this.products[index].barcode) {
-        const existingProduct = this.getProductByBarcode(updatedProduct.barcode);
-        if (existingProduct && existingProduct.id !== productId) {
-          return false;
-        }
-      }
-
-      this.products[index] = {
-        ...this.products[index],
-        ...updatedProduct,
-        updatedAt: new Date(),
-      };
-      this.saveToLocalStorage();
+      this.products[index] = { ...this.products[index], ...updatedProduct };
+      this.productsSubject.next([...this.products]);
       return true;
     }
     return false;
   }
 
-  deleteProduct(productId: number): void {
-    this.products = this.products.filter((p) => p.id !== productId);
-    this.saveToLocalStorage();
+  deleteProduct(id: number): boolean {
+    const index = this.products.findIndex((p) => p.id === id);
+    if (index !== -1) {
+      this.products.splice(index, 1);
+      this.productsSubject.next([...this.products]);
+      return true;
+    }
+    return false;
   }
 
-  updateProductStock(productId: number, newStock: number): void {
-    const product = this.products.find((p) => p.id === productId);
+  getProductByBarcode(barcode: string): Product | undefined {
+    return this.products.find((p) => p.barcode === barcode);
+  }
+
+  getProductById(id: number): Product | undefined {
+    return this.products.find((p) => p.id === id);
+  }
+
+  updateProductStock(productId: number, newStock: number): boolean {
+    const product = this.getProductById(productId);
     if (product) {
       product.stock = newStock;
-      product.updatedAt = new Date();
-      this.saveToLocalStorage();
+      this.productsSubject.next([...this.products]);
+      return true;
     }
+    return false;
   }
 
-  increaseProductStock(productId: number, quantity: number): void {
-    const product = this.products.find((p) => p.id === productId);
+  increaseProductStock(productId: number, quantity: number): boolean {
+    const product = this.getProductById(productId);
     if (product) {
       product.stock += quantity;
-      product.updatedAt = new Date();
-      this.saveToLocalStorage();
+      this.productsSubject.next([...this.products]);
+      return true;
     }
+    return false;
   }
 
-  // SALES & REFUND METHODS
-  updateStock(productId: number, quantity: number) {
-    const product = this.products.find((p) => p.id === productId);
-    if (product) {
-      product.stock -= quantity;
-      product.updatedAt = new Date();
-      this.saveToLocalStorage();
+  // Category Methods
+  addCategory(name: string): boolean {
+    const existingCategory = this.categories.find(
+      (c) => c.name.toLowerCase() === name.toLowerCase()
+    );
+    if (existingCategory) {
+      return false;
     }
-  }
 
-  addSale(sale: any) {
-    const newSale = {
-      ...sale,
-      id: Date.now(),
-      date: new Date(),
-      status: 'completed',
+    const newCategory: Category = {
+      id: this.categories.length > 0 ? Math.max(...this.categories.map((c) => c.id)) + 1 : 1,
+      name: name.trim(),
     };
-    this.sales.push(newSale);
-    this.saveToLocalStorage();
+
+    this.categories.push(newCategory);
+    this.categoriesSubject.next([...this.categories]);
+    return true;
   }
 
-  getSales(): any[] {
+  // Sales Methods
+  getSales(): Sale[] {
     return this.sales;
   }
 
-  // Method baru untuk menghapus transaksi
-  removeSale(saleId: number): boolean {
-    const sales = this.getSales();
-    const index = sales.findIndex((sale) => sale.id === saleId);
+  addSale(sale: Omit<Sale, 'id'>): boolean {
+    const newSale: Sale = {
+      ...sale,
+      id: this.sales.length > 0 ? Math.max(...this.sales.map((s) => s.id)) + 1 : 1,
+    };
 
-    if (index !== -1) {
-      sales.splice(index, 1);
-      localStorage.setItem('warung_sales', JSON.stringify(sales));
-      return true;
-    }
-    return false;
-  }
-
-  returnStock(productId: number, quantity: number) {
-    const product = this.products.find((p) => p.id === productId);
-    if (product) {
-      product.stock += quantity;
-      product.updatedAt = new Date();
-      this.saveToLocalStorage();
-    }
-  }
-
-  addRefund(saleId: number, refundAmount: number, reason: string = 'Pembatalan transaksi') {
-    const sale = this.sales.find((s) => s.id === saleId);
-    if (sale) {
-      const refundRecord = {
-        id: Date.now(),
-        saleId: saleId,
-        originalSale: { ...sale },
-        refundAmount: refundAmount,
-        reason: reason,
-        refundDate: new Date(),
-        processedBy: 'Kasir',
-      };
-
-      this.refunds.push(refundRecord);
-      this.saveToLocalStorage();
-      return refundRecord;
-    }
-    return null;
+    this.sales.push(newSale);
+    this.salesSubject.next([...this.sales]);
+    return true;
   }
 
   cancelSale(saleId: number): boolean {
     const sale = this.sales.find((s) => s.id === saleId);
-    if (sale && sale.status === 'completed') {
-      // Kembalikan stok semua produk
-      sale.items.forEach((item: any) => {
-        this.returnStock(item.id, item.quantity);
-      });
-
-      // Catat pengembalian uang
-      this.addRefund(saleId, sale.cashReceived, 'Pembatalan transaksi lengkap');
-
-      // Tandai transaksi sebagai dibatalkan
+    if (sale) {
       sale.status = 'cancelled';
-      sale.cancelledAt = new Date();
-      sale.refundAmount = sale.cashReceived;
-
-      this.saveToLocalStorage();
+      this.salesSubject.next([...this.sales]);
       return true;
     }
     return false;
-  }
-
-  getRefunds(): any[] {
-    return this.refunds;
-  }
-
-  getTotalRefunds(): number {
-    return this.refunds.reduce((total, refund) => total + refund.refundAmount, 0);
-  }
-
-  getCompletedSales(): any[] {
-    return this.sales.filter((sale) => sale.status === 'completed');
-  }
-
-  getCancelledSales(): any[] {
-    return this.sales.filter((sale) => sale.status === 'cancelled');
   }
 
   getTodaySales(): number {
@@ -308,8 +237,10 @@ export class WarungService {
   }
 
   getMonthlySales(): number {
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
     return this.sales
       .filter((sale) => {
         const saleDate = new Date(sale.date);
@@ -322,124 +253,86 @@ export class WarungService {
       .reduce((total, sale) => total + sale.total, 0);
   }
 
-  // CATEGORY METHODS
-  getCategories() {
-    return this.categories;
+  // Debt Methods
+  getDebts(): Debt[] {
+    return this.debts;
   }
 
-  addCategory(name: string) {
-    const newCategory = {
-      id: Date.now(),
-      name: name.trim(),
-      createdAt: new Date(),
+  getActiveDebts(): Debt[] {
+    return this.debts.filter((debt) => debt.status === 'active');
+  }
+
+  addDebt(debt: Omit<Debt, 'id'>): boolean {
+    const newDebt: Debt = {
+      ...debt,
+      id: this.debts.length > 0 ? Math.max(...this.debts.map((d) => d.id)) + 1 : 1,
     };
-    this.categories.push(newCategory);
-    this.saveToLocalStorage();
+
+    this.debts.push(newDebt);
+    this.debtsSubject.next([...this.debts]);
+    return true;
   }
 
-  deleteCategory(categoryId: number): void {
-    this.categories = this.categories.filter((c) => c.id !== categoryId);
-    this.saveToLocalStorage();
-  }
-
-  updateCategory(categoryId: number, newName: string): boolean {
-    const category = this.categories.find((c) => c.id === categoryId);
-    if (category) {
-      category.name = newName.trim();
-      category.updatedAt = new Date();
-      this.saveToLocalStorage();
+  markDebtPaid(id: number): boolean {
+    const debt = this.debts.find((d) => d.id === id);
+    if (debt) {
+      debt.status = 'paid';
+      this.debtsSubject.next([...this.debts]);
       return true;
     }
     return false;
   }
 
-  // DEBT METHODS
-  getDebts() {
-    return this.debts;
-  }
-
-  addDebt(debt: any) {
-    const newDebt = {
-      ...debt,
-      id: Date.now(),
-      date: new Date(),
-      paid: false,
-    };
-    this.debts.push(newDebt);
-    this.saveToLocalStorage();
-  }
-
-  markDebtPaid(id: number) {
-    const debt = this.debts.find((d) => d.id === id);
-    if (debt) {
-      debt.paid = true;
-      debt.paidDate = new Date();
-      this.saveToLocalStorage();
+  deleteDebt(id: number): boolean {
+    const index = this.debts.findIndex((d) => d.id === id);
+    if (index !== -1) {
+      this.debts.splice(index, 1);
+      this.debtsSubject.next([...this.debts]);
+      return true;
     }
+    return false;
   }
 
-  deleteDebt(id: number) {
-    this.debts = this.debts.filter((d) => d.id !== id);
-    this.saveToLocalStorage();
+  // Refund Methods
+  getRefunds(): Refund[] {
+    return this.refunds;
   }
 
-  getActiveDebts() {
-    return this.debts.filter((debt) => !debt.paid);
+  getTotalRefunds(): number {
+    return this.refunds.reduce((total, refund) => total + refund.total, 0);
   }
 
-  getTotalActiveDebts(): number {
-    return this.getActiveDebts().reduce((total, debt) => total + debt.amount, 0);
+  addRefund(refund: Omit<Refund, 'id'>): boolean {
+    const newRefund: Refund = {
+      ...refund,
+      id: this.refunds.length > 0 ? Math.max(...this.refunds.map((r) => r.id)) + 1 : 1,
+    };
+
+    this.refunds.push(newRefund);
+    return true;
   }
 
-  // UTILITY METHODS
-  getLowStockProducts(): any[] {
-    return this.products.filter(
-      (product) => product.stock > 0 && product.stock <= (product.minStock || 5)
-    );
-  }
-
-  getOutOfStockProducts(): any[] {
-    return this.products.filter((product) => product.stock === 0);
+  // Inventory Methods
+  getLowStockProducts(): Product[] {
+    return this.products.filter((product) => product.stock <= product.minStock);
   }
 
   getTotalInventoryValue(): number {
     return this.products.reduce((total, product) => total + product.price * product.stock, 0);
   }
 
-  clearAllData(): void {
-    this.products = [];
-    this.categories = [];
-    this.debts = [];
-    this.sales = [];
-    this.refunds = [];
-    this.saveToLocalStorage();
-    this.initializeDefaultData();
-  }
-
-  exportData(): any {
-    return {
-      products: this.products,
-      categories: this.categories,
-      debts: this.debts,
-      sales: this.sales,
-      refunds: this.refunds,
-      exportDate: new Date(),
-    };
-  }
-
-  importData(data: any): boolean {
-    try {
-      if (data.products) this.products = data.products;
-      if (data.categories) this.categories = data.categories;
-      if (data.debts) this.debts = data.debts;
-      if (data.sales) this.sales = data.sales;
-      if (data.refunds) this.refunds = data.refunds;
-
-      this.saveToLocalStorage();
+  // Stock Methods
+  updateStock(productId: number, quantity: number): boolean {
+    const product = this.getProductById(productId);
+    if (product && product.stock >= quantity) {
+      product.stock -= quantity;
+      this.productsSubject.next([...this.products]);
       return true;
-    } catch (error) {
-      console.error('Error importing data:', error);
-      return false;
     }
+    return false;
+  }
+
+  private generateId(): number {
+    return this.products.length > 0 ? Math.max(...this.products.map((p) => p.id)) + 1 : 1;
   }
 }

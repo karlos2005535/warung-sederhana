@@ -16,6 +16,7 @@ export class PosComponent implements OnInit {
   products: any[] = [];
   cart: any[] = [];
   cash: number = 0;
+  cashFormatted: string = '';
   recentTransactions: any[] = [];
   showCancelModal: boolean = false;
   selectedTransaction: any = null;
@@ -28,6 +29,7 @@ export class PosComponent implements OnInit {
     this.loadProducts();
     this.loadRecentTransactions();
     this.loadRefundHistory();
+    this.cashFormatted = this.formatRupiah(0);
   }
 
   loadProducts() {
@@ -79,6 +81,72 @@ export class PosComponent implements OnInit {
     return this.cash - this.getTotal();
   }
 
+  // Method untuk format Rupiah
+  formatRupiah(amount: number): string {
+    if (amount === 0) return '0';
+    return amount.toLocaleString('id-ID');
+  }
+
+  // Method untuk parse dari format Rupiah ke number
+  parseRupiah(formatted: string): number {
+    // Hapus semua karakter non-digit kecuali koma dan titik
+    const cleanValue = formatted.replace(/[^\d,]/g, '');
+
+    // Jika kosong, return 0
+    if (!cleanValue) return 0;
+
+    // Handle format Indonesia (titik sebagai pemisah ribuan, koma sebagai desimal)
+    const parts = cleanValue.split(',');
+    const integerPart = parts[0].replace(/\./g, '');
+    const decimalPart = parts[1] ? parts[1] : '0';
+
+    // Gabungkan dan konversi ke number
+    const numberValue = parseFloat(integerPart + '.' + decimalPart);
+
+    return isNaN(numberValue) ? 0 : numberValue;
+  }
+
+  // Event handler untuk input uang
+  onCashInput(event: any) {
+    let inputValue = event.target.value;
+
+    // Hapus semua karakter non-digit
+    let numericValue = inputValue.replace(/[^\d]/g, '');
+
+    // Jika kosong, set ke 0
+    if (!numericValue) {
+      this.cash = 0;
+      this.cashFormatted = '0';
+      return;
+    }
+
+    // Konversi ke number
+    const numberValue = parseInt(numericValue, 10);
+
+    // Update nilai cash
+    this.cash = numberValue;
+
+    // Format ulang tampilan
+    this.cashFormatted = this.formatRupiah(numberValue);
+  }
+
+  // Event handler ketika input kehilangan fokus
+  onCashBlur() {
+    if (this.cash === 0) {
+      this.cashFormatted = '0';
+    } else {
+      this.cashFormatted = this.formatRupiah(this.cash);
+    }
+  }
+
+  // Event handler ketika input mendapatkan fokus
+  onCashFocus() {
+    // Kosongkan field saat fokus jika nilai adalah 0
+    if (this.cash === 0) {
+      this.cashFormatted = '';
+    }
+  }
+
   processPayment() {
     if (this.cash >= this.getTotal()) {
       // Update stock untuk setiap item di cart
@@ -116,6 +184,7 @@ export class PosComponent implements OnInit {
       // Reset cart dan cash
       this.cart = [];
       this.cash = 0;
+      this.cashFormatted = this.formatRupiah(0);
     }
   }
 
@@ -180,7 +249,7 @@ export class PosComponent implements OnInit {
     }
   }
 
-  // Method baru untuk menghapus transaksi tanpa refund
+  // Method untuk menghapus transaksi tanpa refund
   removeTransaction(transaction: any) {
     if (
       confirm(

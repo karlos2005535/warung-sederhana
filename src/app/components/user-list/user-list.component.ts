@@ -1,35 +1,48 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-user-list',
-  template: `
-    <div class="user-list">
-      <div *ngFor="let user of users" class="user-item" (click)="selectUser(user)">
-        {{ user }}
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .user-list {
-        border: 1px solid #ccc;
-        padding: 10px;
-      }
-      .user-item {
-        padding: 5px;
-        cursor: pointer;
-      }
-      .user-item:hover {
-        background-color: #f0f0f0;
-      }
-    `,
-  ],
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './user-list.component.html',
+  styleUrls: ['./user-list.component.scss'],
 })
 export class UserListComponent {
-  @Input() users: string[] = [];
-  @Output() userSelected = new EventEmitter<string>();
+  users: any[] = [
+    {
+      id: 1,
+      name: 'Admin Utama',
+      email: 'admin@warung.com',
+      role: 'Administrator',
+      status: 'active',
+    },
+    {
+      id: 2,
+      name: 'Kasir 1',
+      email: 'kasir1@warung.com',
+      role: 'Kasir',
+      status: 'active',
+    },
+  ];
 
-  selectUser(user: string): void {
-    this.userSelected.emit(user);
+  selectUser(user: any) {
+    console.log('User selected:', user);
+    alert(`User ${user.name} dipilih`);
+  }
+
+  // Method addUser yang diperlukan oleh template
+  addUser() {
+    console.log('Add new user');
+    const newUser = {
+      id: this.users.length + 1,
+      name: `User Baru ${this.users.length + 1}`,
+      email: `user${this.users.length + 1}@warung.com`,
+      role: 'Kasir',
+      status: 'active',
+    };
+
+    this.users.push(newUser);
+    alert('User berhasil ditambahkan!');
   }
 }

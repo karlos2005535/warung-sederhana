@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -338,5 +338,74 @@ export class ProductsListComponent implements OnInit, OnDestroy {
   // Utility methods for template
   getProductCategories(): string[] {
     return [...new Set(this.products.map((p) => p.category).filter(Boolean))];
+  }
+
+  /**
+   * Format angka menjadi format Rupiah
+   */
+  formatRupiah(amount: number): string {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  }
+
+  /**
+   * Handle keyboard events untuk aksesibilitas
+   */
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // ESC key untuk menutup modal
+    if (event.key === 'Escape') {
+      if (this.showBarcodeScanner) {
+        this.stopBarcodeScanner();
+      }
+      if (this.showEdit) {
+        this.cancelEdit();
+      }
+      if (this.showRestock) {
+        this.cancelRestock();
+      }
+    }
+  }
+
+  /**
+   * Improved barcode handling dengan feedback yang lebih baik
+   */
+  improvedHandleScannedBarcode(barcode: string) {
+    console.log('Barcode scanned:', barcode);
+
+    // Clear previous search
+    this.searchTerm = barcode;
+    this.selectedCategory = '';
+    this.stockFilter = 'all';
+    this.filterProducts();
+
+    // Close scanner after successful scan
+    this.stopBarcodeScanner();
+
+    // Show appropriate feedback
+    setTimeout(() => {
+      if (this.filteredProducts.length === 0) {
+        const addNew = confirm(
+          `Produk dengan barcode "${barcode}" tidak ditemukan.\n\nApakah Anda ingin menambahkannya sebagai produk baru?`
+        );
+        if (addNew) {
+          this.router.navigate(['/products'], {
+            state: { prefillBarcode: barcode },
+          });
+        }
+      } else {
+        // Scroll to the first found product
+        const firstProductElement = document.querySelector('.product-card');
+        if (firstProductElement) {
+          firstProductElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }
+      }
+    }, 300);
   }
 }

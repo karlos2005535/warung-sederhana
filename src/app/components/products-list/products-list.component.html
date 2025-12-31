@@ -1,300 +1,418 @@
 <div class="products-list-container">
   <div class="products-list-header">
-    <h1>📋 Daftar Semua Produk</h1>
-    <div class="header-actions">
-      <button class="btn-back" (click)="goBack()">← Kembali ke Dashboard</button>
-      <button class="btn-add" (click)="goToAddProduct()">➕ Tambah Produk Baru</button>
+    <div class="header-content">
+      <div class="header-title">
+        <div class="title-icon">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+            ></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <div>
+          <h1>Inventory Produk</h1>
+          <span class="product-count">{{ totalProducts }} Item Total</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-secondary" (click)="goBack()">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M3 12h18M3 12l6-6M3 12l6 6" />
+          </svg>
+          Kembali
+        </button>
+        <button class="btn-primary" (click)="goToAddProduct()">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Produk Baru
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Filter dan Pencarian -->
-  <div class="filters-section">
-    <div class="search-container">
-      <div class="search-box">
-        <input
-          type="text"
-          placeholder="Cari produk atau barcode..."
-          [(ngModel)]="searchTerm"
-          (input)="filterProducts()"
-        />
-        <span class="search-icon">🔍</span>
+  <div class="stats-overview">
+    <div class="stats-grid">
+      <div class="stat-card stat-value">
+        <div class="stat-icon">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Total Nilai Aset</span
+          ><span class="stat-number">{{ formatRupiah(totalInventoryValue) }}</span>
+        </div>
       </div>
-
-      <!-- Barcode Scan Button -->
-      <div class="barcode-search-actions">
-        <button class="btn-scan" (click)="startBarcodeScanner()">📷 Scan Barcode</button>
-        <button class="btn-manual-barcode" (click)="manualBarcodeSearch()">🔢 Input Barcode</button>
+      <div class="stat-card stat-low">
+        <div class="stat-icon">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            ></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Stok Menipis</span
+          ><span class="stat-number">{{ lowStockProducts }}</span>
+        </div>
+      </div>
+      <div class="stat-card stat-out">
+        <div class="stat-icon">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Stok Habis</span
+          ><span class="stat-number">{{ outOfStockProducts }}</span>
+        </div>
       </div>
     </div>
+  </div>
 
-    <div class="filter-controls">
-      <select [(ngModel)]="selectedCategory" (change)="filterProducts()">
+  <div class="control-section">
+    <div class="search-container">
+      <div class="search-box">
+        <div class="search-icon">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <input
+          type="text"
+          placeholder="Cari nama, SKU, atau scan barcode..."
+          [(ngModel)]="searchTerm"
+          (input)="filterProducts()"
+          class="search-input"
+        />
+        <button class="btn-scan" (click)="startBarcodeScanner()" title="Buka Kamera Scanner">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+            <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+            <rect x="7" y="7" width="10" height="10" rx="1" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="filter-container">
+      <select [(ngModel)]="selectedCategory" (change)="filterProducts()" class="filter-select">
         <option value="">Semua Kategori</option>
         <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
       </select>
-
-      <select [(ngModel)]="stockFilter" (change)="filterProducts()">
-        <option value="all">Semua Stok</option>
-        <option value="low">Stok Rendah</option>
-        <option value="out">Stok Habis</option>
-        <option value="available">Stok Tersedia</option>
+      <select [(ngModel)]="stockFilter" (change)="filterProducts()" class="filter-select">
+        <option value="all">Semua Status Stok</option>
+        <option value="low">Perlu Restock</option>
+        <option value="out">Kosong (0)</option>
+        <option value="available">Tersedia</option>
       </select>
-
-      <button class="btn-export" (click)="exportProducts()">📄 Export Data</button>
-    </div>
-  </div>
-
-  <!-- Statistik Produk -->
-  <div class="products-stats">
-    <div class="stat-card">
-      <div class="stat-number">{{ totalProducts }}</div>
-      <div class="stat-label">Total Produk</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">{{ lowStockProducts }}</div>
-      <div class="stat-label">Stok Rendah</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">{{ outOfStockProducts }}</div>
-      <div class="stat-label">Stok Habis</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">Rp {{ totalInventoryValue.toLocaleString('id-ID') }}</div>
-      <div class="stat-label">Nilai Inventori</div>
-    </div>
-  </div>
-
-  <!-- Daftar Produk -->
-  <div class="products-table-section">
-    <div class="table-header">
-      <h3>Daftar Produk ({{ filteredProducts.length }} items)</h3>
-      <div class="table-info">
-        <span class="results-count"
-          >Menampilkan {{ filteredProducts.length }} dari {{ totalProducts }} produk</span
+      <button class="btn-export" (click)="exportProducts()">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
         >
-      </div>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <div class="products-section">
+    <div class="section-header">
+      <h2>Daftar Produk</h2>
+      <span class="results-count">Menampilkan {{ filteredProducts.length }} hasil</span>
     </div>
 
     <div *ngIf="filteredProducts.length === 0" class="empty-state">
-      <div class="empty-icon">📦</div>
-      <h4>Tidak ada produk yang ditemukan</h4>
-      <p>Coba ubah filter pencarian atau tambahkan produk baru</p>
-      <div class="empty-state-actions">
-        <button class="btn-primary" (click)="goToAddProduct()">➕ Tambah Produk Pertama</button>
-        <button class="btn-secondary" (click)="startBarcodeScanner()">📷 Scan Barcode</button>
+      <div class="empty-icon">
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
       </div>
+      <h3>Tidak ada produk ditemukan</h3>
+      <button
+        class="btn-primary"
+        (click)="selectedCategory = ''; searchTerm = ''; stockFilter = 'all'; filterProducts()"
+      >
+        Reset Filter
+      </button>
     </div>
 
     <div class="products-grid" *ngIf="filteredProducts.length > 0">
       <div
         *ngFor="let product of filteredProducts"
         class="product-card"
-        [class]="getStockStatusClass(product)"
+        [class]="'card-' + getStockStatusClass(product)"
       >
-        <div class="product-header">
-          <h4 class="product-name">{{ product.name }}</h4>
-          <span class="product-barcode">📊 {{ product.barcode }}</span>
+        <div class="card-header">
+          <span class="product-badge" [class]="getStockStatusClass(product) + '-badge'">{{
+            getStockText(product)
+          }}</span>
+          <h3 class="product-name">{{ product.name }}</h3>
+          <span class="product-sku">{{ product.barcode }}</span>
         </div>
-
-        <div class="product-details">
-          <div class="detail-item">
-            <span class="label">Kategori:</span>
-            <span class="value">{{ product.category || 'Tidak ada kategori' }}</span>
+        <div class="card-content">
+          <div class="info-item">
+            <span class="info-label">Kategori</span
+            ><span class="info-value">{{ product.category || '-' }}</span>
           </div>
-          <div class="detail-item">
-            <span class="label">Harga Jual:</span>
-            <span class="value price">Rp {{ product.price.toLocaleString('id-ID') }}</span>
+          <div class="info-item">
+            <span class="info-label">Stok</span
+            ><span class="info-value">{{ product.stock }} pcs</span>
           </div>
-          <div class="detail-item">
-            <span class="label">Stok Tersedia:</span>
-            <span class="value stock" [class]="getStockStatusClass(product) + '-text'">
-              {{ product.stock }} pcs
-            </span>
-          </div>
-          <div class="detail-item" *ngIf="product.minStock > 0">
-            <span class="label">Stok Minimum:</span>
-            <span class="value">{{ product.minStock }} pcs</span>
-          </div>
-          <div class="detail-item" *ngIf="product.supplier">
-            <span class="label">Supplier:</span>
-            <span class="value">{{ product.supplier }}</span>
+          <div class="info-item">
+            <span class="info-label">Harga</span
+            ><span class="info-value price">{{ formatRupiah(product.price) }}</span>
           </div>
         </div>
-
-        <div class="product-actions">
-          <button class="btn-edit" (click)="editProduct(product)">✏️ Edit</button>
-          <button
-            class="btn-restock"
-            (click)="showRestockModal(product)"
-            *ngIf="product.stock <= (product.minStock || 5)"
-          >
-            📦 Restock
+        <div class="card-actions">
+          <button class="btn-edit" (click)="editProduct(product)">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit
           </button>
-          <button
-            class="btn-quick-restock"
-            (click)="quickRestock(product, 10)"
-            *ngIf="product.stock > 0"
-          >
-            ➕ Quick +10
+          <button class="btn-restock" (click)="showRestockModal(product)">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            + Stok
           </button>
-          <button class="btn-delete" (click)="deleteProduct(product.id)">🗑️ Hapus</button>
-        </div>
-
-        <div class="stock-indicator" [class]="getStockStatusClass(product)"></div>
-        <div class="stock-badge" [class]="getStockStatusClass(product) + '-badge'">
-          {{ getStockText(product) }}
+          <button class="btn-delete" (click)="deleteProduct(product.id)">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              ></path>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal Scanner Barcode -->
-  <div *ngIf="showBarcodeScanner" class="modal-overlay">
-    <div class="modal-content scanner-modal">
-      <h3>📷 Scan Barcode Produk</h3>
-
-      <div class="scanner-container">
-        <div id="barcode-scanner-container" class="scanner-viewport">
-          <div *ngIf="!isScanning" class="scanner-placeholder">
-            <div class="scanner-loading">🔄 Memuat kamera...</div>
-          </div>
-        </div>
-
-        <div class="scanner-guide">
-          <div class="scan-frame"></div>
-          <p class="scan-instruction">Arahkan kamera ke barcode produk</p>
-        </div>
-      </div>
-
-      <div *ngIf="scanError" class="scanner-error">
-        <span class="error-icon">⚠️</span>
-        {{ scanError }}
-      </div>
-
-      <div class="scanner-actions">
-        <button class="btn-cancel" (click)="stopBarcodeScanner()">✕ Tutup Scanner</button>
-        <button class="btn-manual" (click)="manualBarcodeSearch(); stopBarcodeScanner()">
-          🔢 Input Manual
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Restock -->
-  <div *ngIf="showRestock" class="modal-overlay">
+  <div class="modal-overlay" *ngIf="showEdit">
     <div class="modal-content">
-      <h3>📦 Restock Produk</h3>
-      <p>
-        <strong>{{ selectedProduct?.name }}</strong>
-      </p>
-      <p>
-        Stok saat ini: <strong>{{ selectedProduct?.stock }} pcs</strong>
-      </p>
-
-      <div class="form-group">
-        <label>Jumlah Tambahan Stok:</label>
-        <input
-          type="number"
-          [(ngModel)]="restockQuantity"
-          min="1"
-          placeholder="Masukkan jumlah"
-          class="form-input"
-        />
+      <div class="modal-header">
+        <h3>Edit Produk</h3>
+        <button class="close-btn" (click)="cancelEdit()">&times;</button>
       </div>
-
-      <div class="modal-actions">
-        <button class="btn-cancel" (click)="cancelRestock()">Batal</button>
-        <button class="btn-confirm" (click)="confirmRestock()">✅ Konfirmasi Restock</button>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nama Produk</label>
+          <input type="text" [(ngModel)]="editProductForm.name" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Barcode / SKU</label>
+          <input type="text" [(ngModel)]="editProductForm.barcode" class="form-input" />
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Harga (Rp)</label>
+            <input type="number" [(ngModel)]="editProductForm.price" class="form-input" />
+          </div>
+          <div class="form-group half">
+            <label>Kategori</label>
+            <select [(ngModel)]="editProductForm.category" class="form-input">
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Stok Saat Ini</label>
+            <input type="number" [(ngModel)]="editProductForm.stock" class="form-input" />
+          </div>
+          <div class="form-group half">
+            <label>Min. Stok Alert</label>
+            <input type="number" [(ngModel)]="editProductForm.minStock" class="form-input" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cancelEdit()">Batal</button>
+        <button class="btn-primary" (click)="updateProduct()">Simpan Perubahan</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Edit Produk -->
-  <div *ngIf="showEdit" class="modal-overlay">
-    <div class="modal-content edit-modal">
-      <h3>✏️ Edit Produk</h3>
-
-      <div class="form-group">
-        <label>Nama Produk *</label>
-        <input
-          type="text"
-          [(ngModel)]="editProductForm.name"
-          placeholder="Nama produk"
-          class="form-input"
-        />
+  <div class="modal-overlay" *ngIf="showRestock">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>Tambah Stok</h3>
+        <button class="close-btn" (click)="cancelRestock()">&times;</button>
       </div>
-
-      <div class="form-group">
-        <label>Barcode *</label>
-        <div class="barcode-input-group">
-          <input
-            type="text"
-            [(ngModel)]="editProductForm.barcode"
-            placeholder="Kode barcode"
-            class="form-input"
-          />
-          <button class="btn-scan-small" (click)="startBarcodeScanner()" type="button">📷</button>
-        </div>
-      </div>
-
-      <div class="form-row">
+      <div class="modal-body">
+        <p style="margin-bottom: 1rem">
+          Menambah stok untuk: <strong>{{ selectedProduct?.name }}</strong>
+        </p>
         <div class="form-group">
-          <label>Kategori</label>
-          <select [(ngModel)]="editProductForm.category" class="form-input">
-            <option value="">Pilih Kategori</option>
-            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Harga (Rp) *</label>
+          <label>Jumlah Masuk (Pcs)</label>
           <input
             type="number"
-            [(ngModel)]="editProductForm.price"
-            min="0"
-            placeholder="Harga"
-            class="form-input"
+            [(ngModel)]="restockQuantity"
+            class="form-input text-lg"
+            placeholder="0"
           />
         </div>
       </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cancelRestock()">Batal</button>
+        <button class="btn-primary" (click)="confirmRestock()">Konfirmasi</button>
+      </div>
+    </div>
+  </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Stok *</label>
-          <input
-            type="number"
-            [(ngModel)]="editProductForm.stock"
-            min="0"
-            placeholder="Stok"
-            class="form-input"
-          />
+  <div class="modal-overlay scanner-overlay" *ngIf="showBarcodeScanner">
+    <div class="modal-content modal-scanner">
+      <div class="modal-header">
+        <h3>Scan Barcode</h3>
+        <button class="close-btn" (click)="stopBarcodeScanner()">&times;</button>
+      </div>
+
+      <div class="modal-body scanner-body-wrapper">
+        <div class="scanner-viewport">
+          <div id="barcode-scanner-container"></div>
+
+          <div class="scanner-guide">
+            <div class="scan-area">
+              <div class="laser-line"></div>
+              <div class="corner top-left"></div>
+              <div class="corner top-right"></div>
+              <div class="corner bottom-left"></div>
+              <div class="corner bottom-right"></div>
+            </div>
+            <p class="scan-instruction">Posisikan barcode di dalam kotak</p>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Stok Minimum</label>
-          <input
-            type="number"
-            [(ngModel)]="editProductForm.minStock"
-            min="0"
-            placeholder="Stok minimum"
-            class="form-input"
-          />
+        <div *ngIf="scanError" class="scan-error-message">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          {{ scanError }}
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Supplier</label>
-        <input
-          type="text"
-          [(ngModel)]="editProductForm.supplier"
-          placeholder="Nama supplier"
-          class="form-input"
-        />
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-cancel" (click)="cancelEdit()">Batal</button>
-        <button class="btn-confirm" (click)="updateProduct()">💾 Simpan Perubahan</button>
+      <div class="modal-footer">
+        <button class="btn-secondary full-width" (click)="stopBarcodeScanner()">
+          Tutup Scanner
+        </button>
       </div>
     </div>
   </div>

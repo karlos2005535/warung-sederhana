@@ -1,281 +1,220 @@
-<!-- dashboard.component.html -->
 <div class="dashboard-container">
-  <!-- Header -->
-  <header class="header">
-    <div class="header-brand">
-      <div class="logo">🛒</div>
-      <div class="brand-info">
-        <h1>Toko Pak Baco</h1>
-        <span>Kios Sembako Khas Indonesia</span>
+  <div class="backdrop" [class.show]="isMenuOpen" (click)="isMenuOpen = false"></div>
+
+  <aside class="sidebar" [class.open]="isMenuOpen">
+    <div class="sidebar-header">
+      <div class="logo-icon">🛒</div>
+      <div class="brand">
+        <h1>WarungKita</h1>
+        <span>Dashboard Admin</span>
       </div>
     </div>
 
-    <div class="header-actions">
-      <div class="user-profile">
-        <div class="user-avatar">{{ currentUser?.username?.charAt(0) }}</div>
-        <span>Hi, {{ currentUser?.username }}</span>
+    <nav class="nav-scroll">
+      <div *ngFor="let item of menuItems" class="nav-item" (click)="navigateTo(item.route)">
+        <span class="nav-icon">{{ item.icon }}</span>
+        <div class="nav-content">
+          <strong>{{ item.title }}</strong>
+          <small>{{ item.description }}</small>
+        </div>
       </div>
-      <button class="menu-toggle" (click)="toggleMenu()">☰</button>
+
+      <div class="nav-item logout" (click)="logout()">
+        <span class="nav-icon">🚪</span>
+        <div class="nav-content">
+          <strong>Keluar</strong>
+          <small>Akhiri sesi</small>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-bar">
+      <div style="display: flex; align-items: center; gap: 1rem">
+        <button class="menu-btn" (click)="toggleMenu()">☰</button>
+        <div class="greeting">
+          <h2>Halo, {{ currentUser?.username || 'Admin' }}! 👋</h2>
+          <p>{{ currentDate | date : 'EEEE, d MMMM y' }} &bull; Selamat bekerja.</p>
+        </div>
+      </div>
+
+      <div class="user-actions">
+        <button class="refresh-btn" (click)="refreshData()">
+          🔄 <span class="d-none-mobile">Refresh Data</span>
+        </button>
+        <div class="avatar" title="User Profile">
+          {{ currentUser?.username?.charAt(0) | uppercase }}
+        </div>
+      </div>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="icon-box blue">💰</div>
+          <span class="trend positive">↑ {{ getSalesGrowth() }}%</span>
+        </div>
+        <h3>Rp {{ salesReport.todaySales.toLocaleString('id-ID') }}</h3>
+        <p>Penjualan Hari Ini</p>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="icon-box green">📈</div>
+          <span class="trend neutral">Bulan Ini</span>
+        </div>
+        <h3>Rp {{ salesReport.monthlySales.toLocaleString('id-ID') }}</h3>
+        <p>Total Omset Bulanan</p>
+      </div>
+
+      <div class="stat-card" [style.border-color]="salesReport.lowStockItems > 0 ? '#fca5a5' : ''">
+        <div class="stat-header">
+          <div
+            class="icon-box"
+            [class.red]="salesReport.lowStockItems > 0"
+            [class.orange]="salesReport.lowStockItems === 0"
+          >
+            ⚠️
+          </div>
+          <span class="trend negative" *ngIf="salesReport.lowStockItems > 0">Perlu Restock</span>
+        </div>
+        <h3>{{ salesReport.lowStockItems }} Item</h3>
+        <p>Stok Menipis / Habis</p>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="icon-box orange">🏦</div>
+          <span class="trend neutral">Aset</span>
+        </div>
+        <h3>Rp {{ salesReport.inventoryValue.toLocaleString('id-ID') }}</h3>
+        <p>Total Nilai Aset</p>
+      </div>
     </div>
-  </header>
 
-  <div class="main-layout">
-    <!-- Sidebar -->
-    <aside class="sidebar" [class.sidebar-open]="isMenuOpen">
-      <nav class="sidebar-nav">
-        <div *ngFor="let item of menuItems" class="nav-item" (click)="navigateTo(item.route)">
-          <span class="nav-icon">{{ item.icon }}</span>
-          <div class="nav-text">
-            <strong>{{ item.title }}</strong>
-            <small>{{ item.description }}</small>
+    <div class="content-wrapper">
+      <section class="card stock-section">
+        <div class="card-header">
+          <h2>📦 Status Persediaan</h2>
+          <button class="btn-link" (click)="navigateTo('/products')">+ Tambah Barang</button>
+        </div>
+
+        <div class="tabs">
+          <button [class.active]="stockFilter === 'all'" (click)="setStockFilter('all')">
+            Semua
+          </button>
+          <button [class.active]="stockFilter === 'low'" (click)="setStockFilter('low')">
+            Menipis <span *ngIf="getLowStockCount() > 0">({{ getLowStockCount() }})</span>
+          </button>
+          <button
+            [class.active]="stockFilter === 'out'"
+            (click)="setStockFilter('out')"
+            style="color: var(--danger)"
+          >
+            Habis <span *ngIf="getOutOfStockCount() > 0">({{ getOutOfStockCount() }})</span>
+          </button>
+        </div>
+
+        <div class="stock-list">
+          <div
+            *ngIf="getFilteredStock().length === 0"
+            style="padding: 2rem; text-align: center; color: var(--text-muted)"
+          >
+            <p>Tidak ada data untuk filter ini.</p>
+          </div>
+
+          <div
+            class="item-row"
+            *ngFor="let item of getFilteredStock()"
+            (click)="navigateToProduct(item.id)"
+          >
+            <div class="info">
+              <span class="name">{{ item.name }}</span>
+              <span class="cat">{{ item.category }}</span>
+            </div>
+
+            <div class="meta">
+              <div style="text-align: right">
+                <div class="price">Rp {{ item.price.toLocaleString('id-ID') }}</div>
+                <div class="qty">Sisa: {{ item.stock }}</div>
+              </div>
+
+              <span
+                class="badge"
+                [class.normal]="item.stock > (item.minStock || 5)"
+                [class.low]="item.stock <= (item.minStock || 5) && item.stock > 0"
+                [class.out]="item.stock === 0"
+              >
+                {{ getStockText(item.stock, item.minStock) }}
+              </span>
+
+              <button
+                class="btn-sm-primary"
+                *ngIf="item.stock <= (item.minStock || 5)"
+                (click)="$event.stopPropagation(); quickRestock(item)"
+              >
+                Restock
+              </button>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="nav-divider"></div>
-
-        <div class="nav-item logout" (click)="logout()">
-          <span class="nav-icon">🚪</span>
-          <div class="nav-text">
-            <strong>Keluar</strong>
-            <small>Logout dari sistem</small>
-          </div>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="content">
-      <!-- Page Header -->
-      <div class="page-header">
-        <div class="header-content">
-          <h1>Dashboard</h1>
-          <p>{{ currentDate | date : 'fullDate' }}</p>
-        </div>
-        <button class="refresh-btn" (click)="refreshData()">🔄 Refresh</button>
-      </div>
-
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div class="stat-info">
-            <h3>Rp {{ salesReport.todaySales.toLocaleString('id-ID') }}</h3>
-            <p>Penjualan Hari Ini</p>
-            <span class="trend" *ngIf="salesReport.todaySales > 0">
-              ↑ {{ getSalesGrowth() }}% dari kemarin
-            </span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📈</div>
-          <div class="stat-info">
-            <h3>Rp {{ salesReport.monthlySales.toLocaleString('id-ID') }}</h3>
-            <p>Penjualan Bulan Ini</p>
-            <span class="trend"> {{ getDaysInMonth() }} hari </span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📦</div>
-          <div class="stat-info">
-            <h3>{{ salesReport.totalProducts }}</h3>
-            <p>Total Produk</p>
-            <span class="trend">{{ getTotalCategories() }} kategori</span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">⚠️</div>
-          <div class="stat-info">
-            <h3>{{ salesReport.lowStockItems }}</h3>
-            <p>Stok Menipis</p>
-            <span class="trend warning" *ngIf="salesReport.lowStockItems > 0">
-              Perlu perhatian
-            </span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">🏪</div>
-          <div class="stat-info">
-            <h3>Rp {{ salesReport.inventoryValue.toLocaleString('id-ID') }}</h3>
-            <p>Nilai Inventori</p>
-            <span class="trend">Total aset</span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">📋</div>
-          <div class="stat-info">
-            <h3>{{ getActiveDebtsCount() }}</h3>
-            <p>Piutang Aktif</p>
-            <span class="trend warning" *ngIf="getActiveDebtsCount() > 0"> Perlu penagihan </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="content-grid">
-        <!-- Stock Section -->
-        <section class="card stock-section">
+      <aside style="display: flex; flex-direction: column; gap: 1.5rem">
+        <div class="card">
           <div class="card-header">
-            <h2>📦 Status Stok</h2>
-            <div class="card-actions">
-              <button class="btn-secondary" (click)="navigateTo('/products-list')">
-                Lihat Semua
-              </button>
-              <button class="btn-primary" (click)="navigateTo('/products')">+ Tambah Stok</button>
+            <h2>⚡ Akses Cepat</h2>
+          </div>
+          <div class="quick-actions-grid">
+            <div class="action-btn" (click)="navigateTo('/pos')">
+              <span class="icon">🖥️</span>
+              <span>Kasir</span>
+            </div>
+            <div class="action-btn" (click)="navigateTo('/products-list')">
+              <span class="icon">🔍</span>
+              <span>Cek Stok</span>
+            </div>
+            <div class="action-btn" (click)="navigateTo('/debts')">
+              <span class="icon">📒</span>
+              <span>Piutang</span>
+            </div>
+            <div class="action-btn" (click)="navigateTo('/reports')">
+              <span class="icon">📊</span>
+              <span>Laporan</span>
             </div>
           </div>
-
-          <!-- Stock Filters -->
-          <div class="filter-tabs">
-            <button
-              class="filter-tab"
-              [class.active]="stockFilter === 'all'"
-              (click)="setStockFilter('all')"
-            >
-              Semua ({{ stockData.length }})
-            </button>
-            <button
-              class="filter-tab"
-              [class.active]="stockFilter === 'low'"
-              (click)="setStockFilter('low')"
-            >
-              Rendah ({{ getLowStockCount() }})
-            </button>
-            <button
-              class="filter-tab"
-              [class.active]="stockFilter === 'out'"
-              (click)="setStockFilter('out')"
-            >
-              Habis ({{ getOutOfStockCount() }})
-            </button>
-          </div>
-
-          <!-- Stock List -->
-          <div class="stock-list">
-            <div *ngIf="getFilteredStock().length === 0" class="empty-state">
-              <div class="empty-icon">📦</div>
-              <p>Tidak ada produk dengan status stok ini</p>
-            </div>
-
-            <div
-              *ngFor="let item of getFilteredStock()"
-              class="stock-item"
-              [class]="getStockStatus(item.stock, item.minStock)"
-              (click)="navigateToProduct(item.id)"
-            >
-              <div class="product-main">
-                <span class="product-name">{{ item.name }}</span>
-                <span class="product-category">{{ item.category }}</span>
-              </div>
-              <div class="product-details">
-                <span class="stock">{{ item.stock }} pcs</span>
-                <span class="price">Rp {{ item.price.toLocaleString('id-ID') }}</span>
-              </div>
-              <div class="stock-status">
-                <span class="status-badge" [class]="getStockStatus(item.stock, item.minStock)">
-                  {{ getStockText(item.stock, item.minStock) }}
-                </span>
-                <button
-                  class="restock-btn"
-                  *ngIf="item.stock <= (item.minStock || 5)"
-                  (click)="$event.stopPropagation(); quickRestock(item)"
-                >
-                  + Restock
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="stock-summary">
-            <div class="summary-item">
-              <span>Total:</span>
-              <strong>{{ stockData.length }}</strong>
-            </div>
-            <div class="summary-item">
-              <span>Rendah:</span>
-              <strong class="warning">{{ getLowStockCount() }}</strong>
-            </div>
-            <div class="summary-item">
-              <span>Habis:</span>
-              <strong class="danger">{{ getOutOfStockCount() }}</strong>
-            </div>
-          </div>
-        </section>
-
-        <!-- Side Panel -->
-        <div class="side-panel">
-          <!-- Quick Actions -->
-          <section class="card quick-actions">
-            <div class="card-header">
-              <h2>⚡ Aksi Cepat</h2>
-            </div>
-            <div class="actions-grid">
-              <button class="action-btn" (click)="navigateTo('/pos')">
-                <span class="action-icon">💰</span>
-                <span class="action-text">
-                  <strong>Kasir</strong>
-                  <small>Transaksi</small>
-                </span>
-              </button>
-
-              <button class="action-btn" (click)="navigateTo('/products')">
-                <span class="action-icon">➕</span>
-                <span class="action-text">
-                  <strong>Tambah Barang</strong>
-                  <small>Produk baru</small>
-                </span>
-              </button>
-
-              <button class="action-btn" (click)="navigateTo('/products-list')">
-                <span class="action-icon">📦</span>
-                <span class="action-text">
-                  <strong>Kelola Stok</strong>
-                  <small>Semua produk</small>
-                </span>
-              </button>
-
-              <button class="action-btn" (click)="navigateTo('/categories')">
-                <span class="action-icon">🏷️</span>
-                <span class="action-text">
-                  <strong>Kategori</strong>
-                  <small>Kelola kategori</small>
-                </span>
-              </button>
-
-              <button class="action-btn" (click)="navigateTo('/debts')">
-                <span class="action-icon">📝</span>
-                <span class="action-text">
-                  <strong>Piutang</strong>
-                  <small>Kelola piutang</small>
-                </span>
-              </button>
-            </div>
-          </section>
-
-          <!-- Recent Sales -->
-          <section class="card recent-sales">
-            <div class="card-header">
-              <h2>🕒 Penjualan Terbaru</h2>
-              <button class="btn-text" (click)="navigateTo('/reports')">Lihat Semua</button>
-            </div>
-            <div class="sales-list">
-              <div *ngFor="let sale of getRecentSales()" class="sale-item">
-                <div class="sale-time">{{ sale.date | date : 'HH:mm' }}</div>
-                <div class="sale-details">
-                  <span class="sale-amount">Rp {{ sale.total.toLocaleString('id-ID') }}</span>
-                  <span class="sale-items">{{ sale.items?.length }} items</span>
-                </div>
-              </div>
-              <div *ngIf="getRecentSales().length === 0" class="empty-state">
-                <p>Belum ada transaksi hari ini</p>
-              </div>
-            </div>
-          </section>
         </div>
-      </div>
-    </main>
-  </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>🕒 Transaksi Terakhir</h2>
+            <button class="btn-link" (click)="navigateTo('/reports')">Detail</button>
+          </div>
+          <div class="recent-sales-list">
+            <div
+              *ngIf="getRecentSales().length === 0"
+              style="
+                padding: 1.5rem;
+                text-align: center;
+                color: var(--text-muted);
+                font-size: 0.9rem;
+              "
+            >
+              Belum ada transaksi hari ini.
+            </div>
+
+            <div class="sale-item" *ngFor="let sale of getRecentSales()">
+              <div class="sale-icon">🧾</div>
+              <div class="sale-info">
+                <span class="amount">Rp {{ sale.total.toLocaleString('id-ID') }}</span>
+                <span class="items">{{ sale.items.length }} Barang</span>
+              </div>
+              <span class="time">{{ sale.date | date : 'HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
 </div>

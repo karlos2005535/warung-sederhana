@@ -1,94 +1,159 @@
-// components/login/login.component.scss
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  background: linear-gradient(135deg, rgba(235, 236, 240, 0.025) 0%, rgba(118, 75, 162, 0.9) 100%),
+  padding: 10px; // Padding luar tipis
+  background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.15) 0%,
+      rgba(118, 75, 162, 0.25) 50%,
+      rgba(235, 236, 240, 0.1) 100%
+    ),
     url('https://media.istockphoto.com/id/1186937462/id/foto/asia-melayu-perempuan-pemilik-toko-rempah-rempah-menerima-keranjang-produk-dari-pelanggannya.jpg?s=612x612&w=0&k=20&c=al3bgaQnGG_6ON134zkCJNTdhdVNdhAMfYT_7MLbERc=')
       center/cover;
   position: relative;
   overflow: hidden;
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: float 20s infinite linear;
-  }
+.background-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  // ...
 }
 
 .login-card {
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 50px 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 16px; // Radius kecil
+  padding: 25px 20px; // SANGAT COMPACT
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  position: relative;
-  z-index: 1;
-  animation: fadeInUp 0.8s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
   width: 100%;
-  max-width: 400px;
+  max-width: 340px; // LEBAR CARD DIKECILKAN LAGI
   margin: 0 auto;
 
-  .title {
-    text-align: center;
-    color: #333;
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+  animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.brand-section {
+  text-align: center;
+  margin-bottom: 15px; // Jarak dikurangi
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+  .store-logo {
+    margin-bottom: 8px;
+
+    .logo-icon {
+      font-size: 2rem; // Ukuran logo pas
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text; // FIXED
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      animation: bounce 2s ease-in-out infinite;
+    }
+  }
+
+  .store-name {
+    font-size: 1.4rem; // Ukuran font pas
+    font-weight: 800;
+    color: #2c5530;
+    margin-bottom: 2px;
+    background: linear-gradient(135deg, #2c5530, #4a7c59);
     -webkit-background-clip: text;
+    background-clip: text; // FIXED
     -webkit-text-fill-color: transparent;
   }
 
-  .subtitle {
-    text-align: center;
+  .store-tagline {
+    font-size: 0.75rem;
     color: #666;
-    margin-bottom: 30px;
-    font-size: 1rem;
+    font-style: italic;
   }
+}
+
+.title {
+  text-align: center;
+  color: #333;
+  font-size: 1.5rem; // Compact
+  font-weight: 700;
+  margin-bottom: 5px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  background-clip: text; // FIXED
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px; // Jarak ke form
+  font-size: 0.85rem;
+  font-weight: 400;
 }
 
 .login-form {
   .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px; // Form lebih rapat
     position: relative;
 
     label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
       color: #555;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
+    }
+
+    .input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .input-icon {
+        position: absolute;
+        left: 12px;
+        font-size: 0.9rem;
+        z-index: 2;
+        color: #94a3b8;
+      }
     }
 
     .form-input {
       width: 100%;
-      padding: 15px;
-      border: 2px solid #e1e5e9;
-      border-radius: 12px;
-      font-size: 1rem;
+      padding: 10px 10px 10px 35px; // Padding input dikecilkan (Compact)
+      border: 1.5px solid #e8ecef;
+      border-radius: 10px;
+      font-size: 0.9rem;
       transition: all 0.3s ease;
-      background: #f8f9fa;
+      background: #f8fafc;
 
       &:focus {
         outline: none;
         border-color: #667eea;
         background: white;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+
+        ~ .input-icon {
+          color: #667eea;
+        }
       }
 
       &::placeholder {
-        color: #aaa;
+        color: #a0aec0;
+        font-size: 0.85rem;
       }
     }
   }
@@ -96,26 +161,27 @@
 
 .btn-login {
   width: 100%;
-  padding: 15px;
+  padding: 12px; // Tombol compact
   border: none;
-  border-radius: 12px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.2s;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #764ba2, #667eea);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
   }
 
-  &:active {
-    transform: translateY(0);
+  .btn-icon {
+    font-size: 1rem;
   }
 }
 
@@ -123,61 +189,84 @@
   color: #667eea;
   text-decoration: none;
   font-weight: 600;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 
   &:hover {
     color: #764ba2;
-    text-decoration: underline;
   }
 }
 
 .text-center {
   text-align: center;
 }
-
 .mt-3 {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
-@keyframes fadeInUp {
+.demo-section {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 12px; // Demo section compact
+  border-radius: 10px;
+  margin-top: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  .demo-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.8rem;
+  }
+
+  .demo-accounts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .demo-account {
+      padding: 6px 10px;
+      background: white;
+      border-radius: 6px;
+      font-size: 0.75rem; // Font demo kecil
+      color: #666;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+// Animasi
+@keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-@keyframes float {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-  }
+@keyframes bounce {
+  0%,
   100% {
-    transform: translate(-50px, -50px) rotate(360deg);
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
   }
 }
 
-// Brand styling untuk Toko Pak Baco
-.brand-section {
-  text-align: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e1e5e9;
-
-  .store-name {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #2c5530;
-    margin-bottom: 5px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+// Responsif Ekstrem
+@media (max-width: 360px) {
+  .login-card {
+    padding: 15px 12px;
+    max-width: 100%;
   }
-
-  .store-tagline {
-    font-size: 0.9rem;
-    color: #666;
-    font-style: italic;
+  .title {
+    font-size: 1.3rem;
   }
 }

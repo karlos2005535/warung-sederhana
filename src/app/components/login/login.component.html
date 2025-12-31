@@ -1,44 +1,82 @@
 <!-- components/login/login.component.html -->
 <div class="login-container">
+  <div class="background-animation">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+  </div>
+
   <div class="login-card fade-in-up">
+    <div class="brand-section">
+      <div class="store-logo">
+        <div class="logo-icon">🛒</div>
+      </div>
+      <div class="store-name">Toko Pak Baco</div>
+      <div class="store-tagline">Kios Sembako Khas Indonesia</div>
+    </div>
+
     <h1 class="title">Selamat Datang</h1>
-    <p class="subtitle">Masuk Lewat Sini</p>
+    <p class="subtitle">Masuk untuk melanjutkan</p>
 
     <form class="login-form" (submit)="login(); $event.preventDefault()">
       <div class="form-group">
         <label for="username">Username</label>
-        <input
-          type="text"
-          id="username"
-          class="form-input"
-          [(ngModel)]="username"
-          name="username"
-          placeholder="Enter your username"
-          required
-        />
+        <div class="input-container">
+          <span class="input-icon">👤</span>
+          <input
+            type="text"
+            id="username"
+            class="form-input"
+            [(ngModel)]="username"
+            name="username"
+            placeholder="Enter your username"
+            required
+          />
+        </div>
       </div>
 
       <div class="form-group">
         <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          class="form-input"
-          [(ngModel)]="password"
-          name="password"
-          placeholder="Enter your password"
-          required
-        />
+        <div class="input-container">
+          <span class="input-icon">🔒</span>
+          <input
+            type="password"
+            id="password"
+            class="form-input"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
       </div>
 
-      <button type="submit" class="btn-login">Sign In</button>
+      <button type="submit" class="btn-login">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-icon">→</span>
+      </button>
     </form>
 
     <div class="text-center mt-3">
-      <p>Don't have an account? <a (click)="goToRegister()" class="link">Sign up here</a></p>
+      <p>
+        Don't have an account?
+        <a (click)="goToRegister()" class="link">
+          <span>Sign up here</span>
+          <span class="link-arrow">↗</span>
+        </a>
+      </p>
     </div>
 
-    <!-- Demo Accounts -->
-    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px"></div>
+    <!-- Demo Accounts Section -->
+    <div class="demo-section">
+      <div class="demo-header">
+        <span class="demo-icon">💡</span>
+        <span>Demo Accounts</span>
+      </div>
+      <div class="demo-accounts">
+        <div class="demo-account"><strong>Admin:</strong> admin / admin123</div>
+        <div class="demo-account"><strong>User:</strong> user / user123</div>
+      </div>
+    </div>
   </div>
 </div>

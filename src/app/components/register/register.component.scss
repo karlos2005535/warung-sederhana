@@ -3,184 +3,219 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.207) 0%, rgba(118, 75, 162, 0.9) 100%),
+  padding: 10px; // Padding container luar sangat kecil
+  background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.2) 0%,
+      rgba(118, 75, 162, 0.3) 50%,
+      rgba(235, 236, 240, 0.15) 100%
+    ),
     url('https://media.istockphoto.com/id/1186937462/id/foto/asia-melayu-perempuan-pemilik-toko-rempah-rempah-menerima-keranjang-produk-dari-pelanggannya.jpg?s=612x612&w=0&k=20&c=al3bgaQnGG_6ON134zkCJNTdhdVNdhAMfYT_7MLbERc=')
       center/cover;
   position: relative;
+  overflow: hidden;
+}
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    border-radius: 50%;
-    animation: pulse 4s ease-in-out infinite;
-  }
+.background-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  // ... (animation shapes tetap sama, boleh dihapus jika ingin lebih ringan)
 }
 
 .register-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 50px 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 16px; // Radius lebih kecil
+  padding: 20px 15px; // SANGAT COMPACT (Kiri kanan 15px)
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   position: relative;
   z-index: 1;
-  animation: fadeInUp 0.8s ease-out 0.2s both;
+  animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+
   width: 100%;
-  max-width: 400px;
+  max-width: 340px; // LEBAR CARD DIKECILKAN LAGI
   margin: 0 auto;
 
-  .title {
-    text-align: center;
-    color: #333;
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.brand-section {
+  text-align: center;
+  margin-bottom: 15px; // Jarak dikurangi
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+  .store-logo {
+    margin-bottom: 8px;
+
+    .logo-icon {
+      font-size: 2rem; // Logo lebih kecil
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text; // FIXED
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      animation: bounce 2s ease-in-out infinite;
+    }
+  }
+
+  .store-name {
+    font-size: 1.4rem; // Font nama toko lebih kecil
+    font-weight: 800;
+    color: #2c5530;
+    margin-bottom: 2px;
+    background: linear-gradient(135deg, #2c5530, #4a7c59);
     -webkit-background-clip: text;
+    background-clip: text; // FIXED
     -webkit-text-fill-color: transparent;
   }
 
-  .subtitle {
-    text-align: center;
+  .store-tagline {
+    font-size: 0.75rem;
     color: #666;
-    margin-bottom: 30px;
-    font-size: 1rem;
+    font-style: italic;
   }
+}
+
+.title {
+  text-align: center;
+  color: #333;
+  font-size: 1.5rem; // Judul "Register" lebih kecil
+  font-weight: 700;
+  margin-bottom: 5px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  background-clip: text; // FIXED
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.85rem; // Subtitle lebih kecil
+  font-weight: 400;
 }
 
 .register-form {
   .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px; // Jarak antar input lebih rapat
+    position: relative;
 
     label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
       color: #555;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.8rem; // Label lebih kecil
+    }
+
+    .input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .input-icon {
+        position: absolute;
+        left: 12px;
+        font-size: 0.9rem;
+        z-index: 2;
+        color: #94a3b8;
+        transition: color 0.3s;
+      }
     }
 
     .form-input {
       width: 100%;
-      padding: 15px;
-      border: 2px solid #e1e5e9;
-      border-radius: 12px;
-      font-size: 1rem;
+      padding: 10px 10px 10px 35px; // PADDING INPUT DIKECILKAN (Compact)
+      border: 1.5px solid #e8ecef;
+      border-radius: 10px;
+      font-size: 0.9rem;
       transition: all 0.3s ease;
-      background: #f8f9fa;
+      background: #f8fafc;
 
       &:focus {
         outline: none;
         border-color: #667eea;
         background: white;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+
+        ~ .input-icon {
+          color: #667eea;
+        }
       }
 
       &::placeholder {
-        color: #aaa;
+        color: #a0aec0;
+        font-size: 0.85rem;
       }
     }
   }
+}
 
-  .password-strength {
-    margin-top: 10px;
-    font-size: 0.8rem;
+// Password Strength & Match (Disesuaikan ukurannya)
+.password-strength {
+  margin-top: 8px;
+  font-size: 0.75rem;
 
-    .strength-bar {
-      height: 6px;
-      background: #e1e5e9;
-      border-radius: 3px;
-      margin-top: 5px;
-      overflow: hidden;
-
-      .strength-fill {
-        height: 100%;
-        transition: all 0.3s ease;
-        border-radius: 3px;
-
-        &.weak {
-          background: #ff4757;
-          width: 33%;
-        }
-
-        &.medium {
-          background: #ffa502;
-          width: 66%;
-        }
-
-        &.strong {
-          background: #2ed573;
-          width: 100%;
-        }
-      }
-    }
-
-    .strength-text {
-      margin-top: 5px;
-      color: #666;
-      font-size: 0.8rem;
-    }
-  }
-
-  // Styling untuk konfirmasi password
-  .password-match {
+  .strength-bar {
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
     margin-top: 5px;
-    font-size: 0.8rem;
-    padding: 5px;
-    border-radius: 4px;
-    text-align: center;
-    transition: all 0.3s ease;
 
-    &.match {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s ease;
 
-    &.mismatch {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    &.empty {
-      background: transparent;
-      color: #666;
-      border: 1px solid transparent;
+      &.weak {
+        background: #ff4757;
+      }
+      &.medium {
+        background: #ffa502;
+      }
+      &.strong {
+        background: #2ed573;
+      }
     }
   }
 }
 
 .btn-register {
   width: 100%;
-  padding: 15px;
+  padding: 12px; // Tombol lebih ramping
   border: none;
-  border-radius: 12px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  transition: transform 0.2s;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #764ba2, #667eea);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
   }
 
-  &:active {
-    transform: translateY(0);
+  .btn-icon {
+    font-size: 1rem;
   }
 }
 
@@ -188,64 +223,51 @@
   color: #667eea;
   text-decoration: none;
   font-weight: 600;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  font-size: 0.85rem; // Link lebih kecil
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 
   &:hover {
     color: #764ba2;
-    text-decoration: underline;
   }
 }
 
 .text-center {
   text-align: center;
 }
-
 .mt-3 {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
-// Brand styling untuk Toko Pak Baco
-.brand-section {
-  text-align: center;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e1e5e9;
-
-  .store-name {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #2c5530;
-    margin-bottom: 5px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .store-tagline {
-    font-size: 0.9rem;
-    color: #666;
-    font-style: italic;
-  }
-}
-
-@keyframes fadeInUp {
+// Animasi (Tetap sama)
+@keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-@keyframes pulse {
+@keyframes bounce {
   0%,
   100% {
-    transform: scale(1);
-    opacity: 0.5;
+    transform: translateY(0);
   }
   50% {
-    transform: scale(1.1);
-    opacity: 0.8;
+    transform: translateY(-5px);
+  }
+}
+
+// Responsif Ekstrem
+@media (max-width: 360px) {
+  .register-card {
+    padding: 15px 10px; // Sangat mepet di HP kecil
+    width: 100%;
+  }
+  .store-logo .logo-icon {
+    font-size: 1.8rem;
   }
 }

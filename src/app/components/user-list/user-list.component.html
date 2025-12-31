@@ -1,0 +1,40 @@
+<div class="user-list-container">
+  <div class="user-list-header">
+    <h2>Daftar Pengguna</h2>
+    <button class="btn-add-user" (click)="addUser()">
+      <span class="btn-icon">+</span>
+      Tambah Pengguna
+    </button>
+  </div>
+
+  <div class="user-search">
+    <input type="text" placeholder="Cari pengguna..." class="search-input" />
+    <span class="search-icon">🔍</span>
+  </div>
+
+  <div class="users-grid">
+    <div *ngFor="let user of users" class="user-card" (click)="selectUser(user)">
+      <div class="user-avatar">
+        {{ user.name.charAt(0).toUpperCase() }}
+      </div>
+      <div class="user-info">
+        <h4 class="user-name">{{ user.name }}</h4>
+        <p class="user-role">{{ user.role }}</p>
+        <p class="user-email">{{ user.email }}</p>
+      </div>
+      <div class="user-status" [class]="user.status">
+        {{ user.status }}
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="users.length === 0" class="empty-state">
+    <div class="empty-icon">👥</div>
+    <h3>Belum ada pengguna</h3>
+    <p>Tambahkan pengguna pertama untuk mulai mengelola sistem</p>
+    <button class="btn-primary" (click)="addUser()">
+      <span class="btn-icon">+</span>
+      Tambah Pengguna Pertama
+    </button>
+  </div>
+</div>
